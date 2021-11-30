@@ -11,4 +11,12 @@ public class DBentry {
         this.sequenceInfo = sequenceInfo;
         this.sequence = sequence;
     }
+
+    public String getSequence() {
+        return sequence;
+    }
+
+    public String getSequenceInfo() {
+        return sequenceInfo;
+    }
 }

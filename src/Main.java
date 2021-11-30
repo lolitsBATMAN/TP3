@@ -3,8 +3,6 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Main {
-    private ArrayList<DBentry> database = new ArrayList<DBentry>();
-
     // 1.1
     //je m'en criss un peu ici so j'ai tout criss dans un tableau, dans le fond
     //les index 0,2,4,6... sont les >dsad|dasd|sdads| et les index 1,3,5,... sont
@@ -12,8 +10,7 @@ public class Main {
     //trop de trouble de les filtrer
 
     //2e argument la dabatase quon creer dans la main
-    public void readFasta(String file) throws FileNotFoundException {
-
+    public static void readFasta(String file, ArrayList<DBentry> database) throws FileNotFoundException {
 
         try (Scanner sc = new Scanner(new File(file))) {
 
@@ -25,7 +22,7 @@ public class Main {
                 DBentry currEntry = new DBentry(infos,sequence);
 
                 //add entry to database
-                this.database.add(currEntry);
+                database.add(currEntry);
             }
         }
     }
@@ -42,30 +39,33 @@ public class Main {
         return mer;
     }
 
-    public static ArrayList<String> hsp(String input, String data, String seed){
+    public static ArrayList<ArrayList<String>> hsp(String input, ArrayList<DBentry> data, String seed){
         int k = seed.length();
-        ArrayList<String> hsps = new ArrayList<String>();
+        ArrayList<ArrayList<String>> hsps = new ArrayList<ArrayList<String>>();
         ArrayList<String> kinput = kmer(input, k);
-        ArrayList<String> kdata = kmer(data, k);
 
-        for(int i = 0; i < kinput.size(); i++){
-            for(int j = 0; j < kdata.size(); j++){
-                Boolean bruh = true;
-                for (int z = 0; z < k; z++){
-                    if (kinput.get(i).charAt(z) != kdata.get(j).charAt(z) && seed.charAt(z) == '1') {
-                        bruh = false;
-                        break;
-                    } else if(kinput.get(i).charAt(z) == kdata.get(j).charAt(z) && seed.charAt(z) == '0') {
-                        bruh = false;
-                        break;
+
+        for (int y = 0; y < data.size(); y++) {
+            ArrayList<String> kdata = kmer(data.get(y).getSequence(), k);
+            hsps.add(new ArrayList<String>());
+            for (int i = 0; i < kinput.size(); i++) {
+                for (int j = 0; j < kdata.size(); j++) {
+                    Boolean bruh = true;
+                    for (int z = 0; z < k; z++) {
+                        if (kinput.get(i).charAt(z) != kdata.get(j).charAt(z) && seed.charAt(z) == '1') {
+                            bruh = false;
+                            break;
+                        } else if (kinput.get(i).charAt(z) == kdata.get(j).charAt(z) && seed.charAt(z) == '0') {
+                            bruh = false;
+                            break;
+                        }
                     }
-                }
-                if (bruh){
-                    hsps.add(kinput.get(i));
+                    if (bruh) {
+                        hsps.get(y).add(kinput.get(i));
+                    }
                 }
             }
         }
-
         return hsps;
     }
 
@@ -76,11 +76,18 @@ public class Main {
     //1.7
     public static void main(String[] args) throws FileNotFoundException {
         //System.out.println(readFasta("src/tRNAs.fasta"));
-        //ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
+        ArrayList<DBentry> database = new ArrayList<DBentry>();
+        DBentry x = new DBentry("BRUH","AAAB");
+        database.add(x);
+        DBentry y = new DBentry("BRUH1","BAAA");
+        database.add(y);
+        DBentry z = new DBentry("BRUH2","ACAA");
+        database.add(z);
+        //readFasta("src/tRNAs.fasta", database);
         //ArrayList<String> unknown = readFasta("src/unknown.fasta");
         //System.out.println(kmer(unknown.get(1), 11));
 
         //Creer ici la database pour avoir acces partout
-        System.out.println(hsp("BAAA","AAAB" , "111"));
+        System.out.println(hsp("BAAA",database , "111"));
     }
 }
