@@ -5,6 +5,10 @@ import java.util.ArrayList;
 public class Main {
 
     // 1.1
+    //je m'en criss un peu ici so j'ai tout criss dans un tableau, dans le fond
+    //les index 0,2,4,6... sont les >dsad|dasd|sdads| et les index 1,3,5,... sont
+    //les nucleotides, good luck
+    //trop de trouble de les filtrer
     public static ArrayList<String> readFasta(String x) throws FileNotFoundException {
 
         ArrayList<String> database = new ArrayList<String>();
@@ -17,6 +21,7 @@ public class Main {
     }
 
     //1.2
+    //la position de chaque KMER est l'index dans le tableau
     public static ArrayList<String> kmer (String word, int k){
         ArrayList<String> mer = new ArrayList<String>();
 
