@@ -10,8 +10,8 @@ public class Main {
     //trop de trouble de les filtrer
 
     //2e argument la dabatase quon creer dans la main
-    public static void readFasta(String file, ArrayList<DBentry> database) throws FileNotFoundException {
-
+    public static ArrayList<DBentry> readFasta(String file) throws FileNotFoundException {
+        ArrayList<DBentry> database =  new ArrayList<DBentry>();
         try (Scanner sc = new Scanner(new File(file))) {
 
             while (sc.hasNextLine()) {
@@ -25,9 +25,10 @@ public class Main {
                 database.add(currEntry);
             }
         }
+        return database;
     }
 
-    //1.2
+    //1.2 and 1.3
     //la position de chaque KMER est l'index dans le tableau
     public static ArrayList<String> kmer (String word, int k){
         ArrayList<String> mer = new ArrayList<String>();
@@ -39,15 +40,17 @@ public class Main {
         return mer;
     }
 
-    public static ArrayList<ArrayList<String>> hsp(String input, ArrayList<DBentry> data, String seed){
+    //retourne une list avec les hsps
+    public static ArrayList<ArrayList<String>> hsp(String input, ArrayList<DBentry> data, String seed, ArrayList<ArrayList<Integer>> position, ArrayList<ArrayList<Integer>> positioninput){
         int k = seed.length();
         ArrayList<ArrayList<String>> hsps = new ArrayList<ArrayList<String>>();
         ArrayList<String> kinput = kmer(input, k);
 
-
         for (int y = 0; y < data.size(); y++) {
             ArrayList<String> kdata = kmer(data.get(y).getSequence(), k);
             hsps.add(new ArrayList<String>());
+            position.add(new ArrayList<Integer>());
+            positioninput.add(new ArrayList<Integer>());
             for (int i = 0; i < kinput.size(); i++) {
                 for (int j = 0; j < kdata.size(); j++) {
                     Boolean bruh = true;
@@ -62,6 +65,8 @@ public class Main {
                     }
                     if (bruh) {
                         hsps.get(y).add(kinput.get(i));
+                        position.get(y).add(j);
+                        positioninput.get(y).add(i);
                     }
                 }
             }
@@ -76,18 +81,31 @@ public class Main {
     //1.7
     public static void main(String[] args) throws FileNotFoundException {
         //System.out.println(readFasta("src/tRNAs.fasta"));
-        ArrayList<DBentry> database = new ArrayList<DBentry>();
+        ArrayList<DBentry> db = new ArrayList<DBentry>();
+        ArrayList<DBentry> input = readFasta("src/unknown.fasta");
         DBentry x = new DBentry("BRUH","AAAB");
-        database.add(x);
+        db.add(x);
         DBentry y = new DBentry("BRUH1","BAAA");
-        database.add(y);
+        db.add(y);
         DBentry z = new DBentry("BRUH2","ACAA");
-        database.add(z);
+        db.add(z);
         //readFasta("src/tRNAs.fasta", database);
-        //ArrayList<String> unknown = readFasta("src/unknown.fasta");
+        ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
+        ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
+        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
         //System.out.println(kmer(unknown.get(1), 11));
 
         //Creer ici la database pour avoir acces partout
-        System.out.println(hsp("BAAA",database , "111"));
+        //System.out.println("GGGAGAATGACTGAGTGGTTAAAAGTGACAGACTGTAAATCTGTTGAAATTATTTCTACGTAGGTTCGAATCCTGCTTCTCCCA".length());
+
+        //HSP
+        System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
+
+        //position dans les sequences de la database
+        System.out.println(position);
+
+        //position de l'input
+        System.out.println(positionInput);
     }
 }
