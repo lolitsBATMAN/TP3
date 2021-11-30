@@ -3,7 +3,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Main {
-
+    private ArrayList<DBentry> database = new ArrayList<DBentry>();
 
     // 1.1
     //je m'en criss un peu ici so j'ai tout criss dans un tableau, dans le fond
@@ -12,7 +12,7 @@ public class Main {
     //trop de trouble de les filtrer
 
     //2e argument la dabatase quon creer dans la main
-    public static void readFasta(String file, ArrayList<DBentry> database) throws FileNotFoundException {
+    public void readFasta(String file) throws FileNotFoundException {
 
 
         try (Scanner sc = new Scanner(new File(file))) {
@@ -25,8 +25,7 @@ public class Main {
                 DBentry currEntry = new DBentry(infos,sequence);
 
                 //add entry to database
-                database.add(currEntry);
-
+                this.database.add(currEntry);
             }
         }
     }
@@ -43,6 +42,33 @@ public class Main {
         return mer;
     }
 
+    public static ArrayList<String> hsp(String input, String data, String seed){
+        int k = seed.length();
+        ArrayList<String> hsps = new ArrayList<String>();
+        ArrayList<String> kinput = kmer(input, k);
+        ArrayList<String> kdata = kmer(data, k);
+
+        for(int i = 0; i < kinput.size(); i++){
+            for(int j = 0; j < kdata.size(); j++){
+                Boolean bruh = true;
+                for (int z = 0; z < k; z++){
+                    if (kinput.get(i).charAt(z) != kdata.get(j).charAt(z) && seed.charAt(z) == '1') {
+                        bruh = false;
+                        break;
+                    } else if(kinput.get(i).charAt(z) == kdata.get(j).charAt(z) && seed.charAt(z) == '0') {
+                        bruh = false;
+                        break;
+                    }
+                }
+                if (bruh){
+                    hsps.add(kinput.get(i));
+                }
+            }
+        }
+
+        return hsps;
+    }
+
     //1.3
     //1.4
     //1.5
@@ -54,9 +80,7 @@ public class Main {
         //ArrayList<String> unknown = readFasta("src/unknown.fasta");
         //System.out.println(kmer(unknown.get(1), 11));
 
-
         //Creer ici la database pour avoir acces partout
-        ArrayList<DBentry> database = new ArrayList<>();
-        readFasta("C:\\Users\\Admin\\Documents\\GitHub\\TP3\\src\\tRNAs.fasta", database);
+        System.out.println(hsp("BAAA","AAAB" , "111"));
     }
 }
