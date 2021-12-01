@@ -65,8 +65,8 @@ public class Main {
                     }
                     if (bruh) {
                         hsps.get(y).add(kinput.get(i));
-                        position.get(y).add(j);
-                        positioninput.get(y).add(i);
+                        position.get(y).add(j); // y ieme sequence dans la database , j ieme kmer = index de cette sequence
+                        positioninput.get(y).add(i);// y ieme sequence dans la database, i eme kmer = index de notre sequence inconnue
                     }
                 }
             }
