@@ -76,6 +76,93 @@ public class Main {
 
     //1.3
     //1.4
+    public static ArrayList<ArrayList<String>> extendHsps (ArrayList<ArrayList<String>> hsps,ArrayList<DBentry> database, String sequence, ArrayList<ArrayList<Integer>> dbPositions, ArrayList<ArrayList<Integer>> sequencePositions, int seuil) {
+
+
+        //for each hsp ->take start and end position
+        for (int i = 0; i < hsps.size(); i++) { // kmers in this database line
+
+
+            for (int j = 0; j < hsps.get(i).size(); j++) { // current kmer
+
+
+                //database position
+                int kmerDBstartPosition = dbPositions.get(i).get(j);
+                int kmerDBendPosition = kmerDBstartPosition + hsps.get(i).get(j).length() - 1;
+
+                //sequence position
+                int kmerSequenceStartPosition = sequencePositions.get(i).get(j);
+                int kmerSequenceEndPosition = kmerSequenceStartPosition + hsps.get(i).get(j).length() - 1;
+
+                //outOfBoundsVerification
+                if(kmerDBstartPosition-1 < 0 || kmerSequenceStartPosition - 1 <0){
+                    break;
+                }
+                if(kmerDBendPosition + 1 == database.get(i).getSequence().length() || kmerSequenceEndPosition + 1  == sequence.length()){
+                    break;
+                }
+
+
+                int maxScoreLeft = 0;
+                int maxScoreRight = 0;
+                int currLeftScore = 0;
+                int currRightScore = 0;
+
+
+                boolean leftMatch = false;
+                boolean rightMatch = false;
+
+                while (currLeftScore > maxScoreLeft - seuil && currRightScore > maxScoreRight - seuil) {
+
+                    if (currLeftScore > maxScoreLeft - seuil) {
+
+                        //chek left
+                        if (database.get(i).getSequence().charAt(kmerDBstartPosition - 1) == sequence.charAt(kmerSequenceStartPosition - 1)) {
+                            leftMatch = true;
+                            currLeftScore = +5;
+                            maxScoreLeft +=currLeftScore;
+                        } else {
+                            currLeftScore = -4;
+                        }
+                    }
+
+                    if (currRightScore > maxScoreRight - seuil) {
+
+                        //chek right
+                        if (database.get(i).getSequence().charAt(kmerDBendPosition + 1) == sequence.charAt(kmerSequenceEndPosition + 1)) {
+                            rightMatch = true;
+                            currRightScore = +5;
+                            maxScoreRight+=currRightScore;
+                        } else {
+                            currRightScore = -4;
+                        }
+                    }
+
+
+                    //extend left
+                    if (currLeftScore >= currRightScore) {
+                        char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
+                        hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
+                        kmerDBstartPosition--;
+                        kmerSequenceStartPosition--;
+
+                    } else {
+                        //extend right
+                        char rightCar = database.get(i).getSequence().charAt(kmerDBendPosition + 1);
+                        hsps.get(i).set(j, hsps.get(i).get(j) + rightCar);
+                        kmerDBendPosition++;
+                        kmerSequenceEndPosition++;
+                    }
+                }
+
+
+            }
+        }
+        return hsps;
+    }
+
+
+
     //1.5
     //1.6
     //1.7
@@ -100,12 +187,17 @@ public class Main {
         //System.out.println("GGGAGAATGACTGAGTGGTTAAAAGTGACAGACTGTAAATCTGTTGAAATTATTTCTACGTAGGTTCGAATCCTGCTTCTCCCA".length());
 
         //HSP
-        System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
+        //System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
 
+        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
         //position dans les sequences de la database
         System.out.println(position);
 
         //position de l'input
         System.out.println(positionInput);
+
+
+        System.out.println(extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,5));
+
     }
 }
