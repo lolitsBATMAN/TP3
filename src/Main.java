@@ -74,6 +74,25 @@ public class Main {
         return hsps;
     }
 
+    public static <T> void removeDuplicates(ArrayList<ArrayList<T>> list) {
+
+        // Create a new ArrayList
+        ArrayList<ArrayList<T>> newList = new ArrayList<ArrayList<T>>();
+
+        // Traverse through the first list
+        for (int i = 0;  i < list.size(); i++) {
+            if (!list.get(i).isEmpty()) {
+                ArrayList<T> newist = new ArrayList<T>();
+                for (int j = 0; j < list.get(i).size(); j++) {
+                    if (!newist.contains(list.get(i).get(j))) {
+                        newist.add(list.get(i).get(j));
+                    }
+                }
+                list.set(i, newist);
+            }
+        }
+    }
+
     //1.4
     public static ArrayList<ArrayList<String>> glouton (ArrayList<DBentry> database, String input, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase, ArrayList<ArrayList<String>> hsp, Integer seuil, String seed){
         ArrayList<ArrayList<String>> hsps = hsp;
@@ -82,7 +101,6 @@ public class Main {
             if (!hsp.get(i).isEmpty()) {
                 for (int j = 0; j < hsp.get(i).size(); j++) {
 
-                    //System.out.println(seed.length());
                     int seqInputFirst = positionInput.get(i).get(j) - 1;
                     int seqInputLast = positionInput.get(i).get(j) + seed.length();
                     int seqDataFirst = positionDatabase.get(i).get(j)-1;
@@ -94,34 +112,16 @@ public class Main {
                     boolean extendLeft = true;
                     boolean extendRight = true;
 
-
-                    //System.out.println(input);
-                    //System.out.println(database.get(i).getSequence());
-
                     while (extendLeft && extendRight) {
                         if (seqInputFirst == -1 || seqDataFirst == -1 || maxScore - score >= seuil) {
                             extendLeft = false;
                         }
-//                        System.out.println(seqInputLast);
-//                        System.out.println(input.length());
-//                        System.out.println(seqDataLast);
-//                        System.out.println(database.get(i).getSequence().length());
-//                        System.out.println(seqDataLast == database.get(i).getSequence().length());
-//                        System.out.println(seqDataLast == database.get(i).getSequence().length() || seqInputLast == input.length() || maxScore - score >= seuil);
-//                        System.out.println(seqDataLast == database.get(i).getSequence().length()+1);
-//                        System.out.println(seqInputLast == input.length()+1);
-//                        System.out.println("---------------------------------------------");
-//                        System.out.println(seqInputFirst == -1 || seqDataFirst == -1 || maxScore - score >= seuil);
-//                        System.out.println(seqDataLast == database.get(i).getSequence().length()+1 || seqInputLast == input.length()+1 || maxScore - score >= seuil);
-//                        System.out.println("=============================================");
+
                         if (seqDataLast == database.get(i).getSequence().length()  || seqInputLast == input.length() || maxScore - score >= seuil) {
                             extendRight = false;
                         }
-                        //System.out.println(extendRight);
                         int scoreLeft = 0;
 
-//                        System.out.println(extendLeft);
-//                        System.out.println(extendRight);
                         //extend gauche
                         if (extendLeft) {
                             if (input.charAt(seqInputFirst) == database.get(i).getSequence().charAt(seqDataFirst)){
@@ -135,8 +135,6 @@ public class Main {
 
                         //extend droite
                         if (extendRight) {
-//                            System.out.println(seqInputLast);
-//                            System.out.println(seqDataLast);
                             if (input.charAt(seqInputLast) == database.get(i).getSequence().charAt(seqDataLast)){
                                 scoreRight = 5 + score;
                             } else {
@@ -148,65 +146,59 @@ public class Main {
                         if (extendLeft && scoreLeft >= scoreRight){
                             hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
                             score = scoreLeft;
-                            seqInputFirst -= 1;
-                            seqDataFirst -= 1;
+                            seqInputFirst--;
+                            positionInput.get(i).set(j,positionInput.get(i).get(j)-1);
+                            seqDataFirst--;
+                            positionDatabase.get(i).set(j,positionDatabase.get(i).get(j)-1);
                         } else if (extendRight && scoreLeft < scoreRight){
-                            System.out.println(input.charAt(seqInputLast));
                             hsps.get(i).set(j, hsps.get(i).get(j)+input.charAt(seqInputLast));
                             score = scoreRight;
-                            seqInputLast += 1;
-                            seqDataLast += 1;
+                            seqInputLast++;
+                            seqDataLast++;
                         }
 
                         if (score > maxScore){
                             maxScore = score;
                         }
-                        // System.out.println(hsps);
                     }
                 }
             }
         }
 
+        removeDuplicates(hsps);
+        removeDuplicates(positionInput);
+        removeDuplicates(positionDatabase);
+
         return hsps;
     }
     //1.5
+
     //1.6
     //1.7
-    public static void main(String[] args) throws FileNotFoundException {
-        //System.out.println(readFasta("src/tRNAs.fasta"));
-        ArrayList<DBentry> db = new ArrayList<DBentry>();
-        //ArrayList<DBentry> input = readFasta("src/unknown.fasta");
-        DBentry x = new DBentry("BRUH","ABCABC");
-        db.add(x);
-        DBentry y = new DBentry("BRUH1","ABCCAB");
-        db.add(y);
-        DBentry z = new DBentry("BRUH2","ABCBAB");
-        db.add(z);
-        //readFasta("src/tRNAs.fasta", database);
-        ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
-        ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
+
+    public static void plast(String input, String output, String seed, int seuil) throws FileNotFoundException {
+        ArrayList<DBentry> unknown = readFasta(input);
+        ArrayList<DBentry> database = readFasta(output);
         ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-        //ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
-        //System.out.println(kmer(unknown.get(0).getSequence(), 11));
+        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , seed, position, positionInput);
+        System.out.println(hsps.get(57));
+        System.out.println(position.get(57));
+        System.out.println(positionInput.get(57));
+        System.out.println(glouton(database, unknown.get(0).getSequence(), positionInput, position, hsps, seuil, seed).get(57));
+        System.out.println(position.get(57));
+        System.out.println(positionInput.get(57));
+    }
 
-        //Creer ici la database pour avoir acces partout
-        //System.out.println("GGGAGAATGACTGAGTGGTTAAAAGTGACAGACTGTAAATCTGTTGAAATTATTTCTACGTAGGTTCGAATCCTGCTTCTCCCA".length());
-
-//        //HSP
-        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
-////
-////        //position dans les sequences de la database
-        System.out.println(position);
+    public static void main(String[] args) throws FileNotFoundException {
+//        ArrayList<DBentry> db = new ArrayList<DBentry>();
+//        DBentry x = new DBentry("BRUH","ABCABC");
+//        db.add(x);
+//        DBentry y = new DBentry("BRUH1","ABCCAB");
+//        db.add(y);
+//        DBentry z = new DBentry("BRUH2","ABCBAB");
+//        db.add(z);
 //
-//        //position de l'input
-        System.out.println(positionInput);
-
-        System.out.println(unknown.get(0).getSequence());
-        System.out.println(unknown.get(0).getSequence().length());
-
-        System.out.println(glouton(database, unknown.get(0).getSequence(), positionInput, position, hsps, 4, "11111111111"));
-
 //        String input = "ABC";
 //        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
 //        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
@@ -215,5 +207,10 @@ public class Main {
 //        System.out.println(position);
 //        System.out.println(positionInput);
 //        System.out.println(glouton(db,input,positionInput, position, hsps,4,"11"));
+//        System.out.println(hsps);
+//        System.out.println(position);
+//        System.out.println(positionInput);
+
+        plast("src/unknown.fasta","src/tRNAs.fasta", "11111111111", 4);
     }
 }
