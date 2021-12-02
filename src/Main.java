@@ -80,12 +80,13 @@ public class Main {
 
         for (int i =0; i < hsps.size(); i++){
             if (!hsp.get(i).isEmpty()) {
-                for (int j = 0; j < hsp.get(i).size(); j++){
+                for (int j = 0; j < hsp.get(i).size(); j++) {
 
-                    int seqInputFirst = positionInput.get(i).get(j)-1;
-                    int seqInputLast = positionInput.get(i).get(j) + seed.length()+1;
-                    int seqDataFirst = positionDatabase.get(i).get(j);
-                    int seqDataLast = positionDatabase.get(i).get(j) + seed.length();
+                    System.out.println(seed.length());
+                    int seqInputFirst = positionInput.get(i).get(j) - 1;
+                    int seqInputLast = positionInput.get(i).get(j) + seed.length() + 1;
+                    int seqDataFirst = positionDatabase.get(i).get(j)-1;
+                    int seqDataLast = positionDatabase.get(i).get(j) + seed.length() + 1;
 
                     int score = 0;
                     int maxScore = 0;
@@ -93,32 +94,44 @@ public class Main {
                     boolean extendLeft = true;
                     boolean extendRight = true;
 
-                    while(extendLeft && extendRight){
-
-                        if (seqInputFirst < 0 && seqDataFirst < 0 && maxScore - score >= seuil){
+                    while (extendLeft && extendRight) {
+                        if (seqInputFirst == -1 || seqDataFirst == -1 || maxScore - score >= seuil) {
                             extendLeft = false;
                         }
 
-                        if (seqDataLast > database.get(i).getSequence().length() && seqInputLast > input.length() && maxScore - score >= seuil){
+                        if (seqDataLast == database.get(i).getSequence().length() || seqInputLast == input.length() || maxScore - score >= seuil) {
                             extendRight = false;
                         }
 
                         int scoreLeft = 0;
 
                         //extend gauche
-                        if (extendLeft){
-                            scoreLeft = 5 + score;
-                        } else {
-                            scoreLeft = -4 + score;
+                        if (extendLeft) {
+                            System.out.println(extendLeft);
+                            System.out.println(seqInputFirst);
+                            System.out.println(seqDataFirst);
+                            if (input.charAt(seqInputFirst) == database.get(i).getSequence().charAt(seqDataFirst)){
+                                scoreLeft = 5 + score;
+                            } else {
+                                scoreLeft = -4 + score;
+                            }
                         }
+
 
                         int scoreRight = 0;
 
                         //extend droite
-                        if (extendRight){
-                            scoreRight = 5 + score;
-                        } else {
-                            scoreRight = -4 + score;
+                        if (extendRight) {
+                            System.out.println(extendRight);
+                            System.out.println(seqInputLast);
+                            System.out.println(seqDataLast);
+                            System.out.println(input);
+                            System.out.println(database.get(i).getSequence());
+                            if (input.charAt(seqInputLast) == database.get(i).getSequence().charAt(seqDataLast)){
+                                scoreRight = 5 + score;
+                            } else {
+                                scoreRight = -4 + score;
+                            }
                         }
 
                         //on regarde quel est le meilleur extend
@@ -152,11 +165,11 @@ public class Main {
         //System.out.println(readFasta("src/tRNAs.fasta"));
         ArrayList<DBentry> db = new ArrayList<DBentry>();
         //ArrayList<DBentry> input = readFasta("src/unknown.fasta");
-        DBentry x = new DBentry("BRUH","AAAB");
+        DBentry x = new DBentry("BRUH","AAAAB");
         db.add(x);
-        DBentry y = new DBentry("BRUH1","BAAA");
+        DBentry y = new DBentry("BRUH1","BAAAA");
         db.add(y);
-        DBentry z = new DBentry("BRUH2","ACAA");
+        DBentry z = new DBentry("BRUH2","ACAAA");
         db.add(z);
         //readFasta("src/tRNAs.fasta", database);
 //        ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
@@ -178,11 +191,13 @@ public class Main {
 //        //position de l'input
 //        System.out.println(positionInput);
 
-        String input = "AAA";
+        String input = "AAAA";
         ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-        ArrayList<ArrayList<String>> hsps = hsp(input,db , "111", position, positionInput);
-
-        System.out.println(glouton(db,input,positionInput, position, hsps,4,"11111111111"));
+        ArrayList<ArrayList<String>> hsps = hsp(input,db,"111", position, positionInput);
+        System.out.println(hsps);
+        System.out.println(position);
+        System.out.println(positionInput);
+        System.out.println(glouton(db,input,positionInput, position, hsps,4,"111"));
     }
 }
