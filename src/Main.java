@@ -82,25 +82,27 @@ public class Main {
         //for each hsp ->take start and end position
         for (int i = 0; i < hsps.size(); i++) { // kmers in this database line
 
+            boolean endLeft = false;
+            boolean endRight = false;
 
             for (int j = 0; j < hsps.get(i).size(); j++) { // current kmer
+
 
 
                 //database position
                 int kmerDBstartPosition = dbPositions.get(i).get(j);
                 int kmerDBendPosition = kmerDBstartPosition + hsps.get(i).get(j).length() - 1;
 
+
+
+
                 //sequence position
                 int kmerSequenceStartPosition = sequencePositions.get(i).get(j);
                 int kmerSequenceEndPosition = kmerSequenceStartPosition + hsps.get(i).get(j).length() - 1;
 
-                //outOfBoundsVerification
-                if(kmerDBstartPosition-1 < 0 || kmerSequenceStartPosition - 1 <0){
-                    break;
-                }
-                if(kmerDBendPosition + 1 == database.get(i).getSequence().length() || kmerSequenceEndPosition + 1  == sequence.length()){
-                    break;
-                }
+
+
+
 
 
                 int maxScoreLeft = 0;
@@ -112,44 +114,73 @@ public class Main {
                 boolean leftMatch = false;
                 boolean rightMatch = false;
 
-                while (currLeftScore > maxScoreLeft - seuil && currRightScore > maxScoreRight - seuil) {
+                while ((currLeftScore > maxScoreLeft - seuil || currRightScore > maxScoreRight - seuil) && (!endLeft || !endRight)) {
 
-                    if (currLeftScore > maxScoreLeft - seuil) {
 
-                        //chek left
-                        if (database.get(i).getSequence().charAt(kmerDBstartPosition - 1) == sequence.charAt(kmerSequenceStartPosition - 1)) {
-                            leftMatch = true;
-                            currLeftScore = +5;
-                            maxScoreLeft +=currLeftScore;
-                        } else {
-                            currLeftScore = -4;
-                        }
+
+                    //outOfBoundsVerification
+                    if(kmerDBstartPosition-1 == -1 || kmerSequenceStartPosition - 1 == -1){
+                        endLeft = true;
+                    }
+                    if(kmerDBendPosition + 1 == database.get(i).getSequence().length() || kmerSequenceEndPosition + 1  == sequence.length()){
+                        endRight = true;
                     }
 
-                    if (currRightScore > maxScoreRight - seuil) {
 
-                        //chek right
+                    //chek left
+                        if (!endLeft && currLeftScore > maxScoreLeft - seuil) {
+                            if (database.get(i).getSequence().charAt(kmerDBstartPosition - 1) == sequence.charAt(kmerSequenceStartPosition - 1)) {
+                                leftMatch = true;
+                                currLeftScore = +5;
+                                if (currLeftScore > maxScoreLeft) {
+                                    maxScoreLeft += currLeftScore;
+                                }
+                            } else {
+                                currLeftScore -=4;
+                            }
+                        }
+
+
+                    //chek right
+                    if (!endRight && currRightScore > maxScoreRight - seuil) {
                         if (database.get(i).getSequence().charAt(kmerDBendPosition + 1) == sequence.charAt(kmerSequenceEndPosition + 1)) {
+
+
                             rightMatch = true;
                             currRightScore = +5;
-                            maxScoreRight+=currRightScore;
+                            if(currRightScore>maxScoreRight) {
+                                maxScoreRight += currRightScore;
+                            }
                         } else {
-                            currRightScore = -4;
+                            currRightScore -=4;
                         }
                     }
 
 
                     //extend left
-                    if (currLeftScore >= currRightScore) {
+                    if (!endLeft && currLeftScore >= currRightScore) {
                         char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
+                        //extend hsp
                         hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
+                        //extend positions
+                        dbPositions.get(i).set(j, kmerDBstartPosition-1);
+                        sequencePositions.get(i).set(j, kmerSequenceStartPosition-1);
+
+                        //next car
                         kmerDBstartPosition--;
                         kmerSequenceStartPosition--;
 
-                    } else {
+
+                    } else if (!endRight){
                         //extend right
                         char rightCar = database.get(i).getSequence().charAt(kmerDBendPosition + 1);
+                        //extend hsp
                         hsps.get(i).set(j, hsps.get(i).get(j) + rightCar);
+                        //extend positions
+                        dbPositions.get(i).set(j,kmerDBendPosition + 1);
+                        sequencePositions.get(i).set(j, kmerSequenceEndPosition + 1);
+
+                        //next car
                         kmerDBendPosition++;
                         kmerSequenceEndPosition++;
                     }
@@ -190,6 +221,9 @@ public class Main {
         //System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
 
         ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
+
+        System.out.println(extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,5));
+
         //position dans les sequences de la database
         System.out.println(position);
 
@@ -197,7 +231,6 @@ public class Main {
         System.out.println(positionInput);
 
 
-        System.out.println(extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,5));
 
     }
 }
