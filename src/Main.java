@@ -74,15 +74,84 @@ public class Main {
         return hsps;
     }
 
-    //1.3
     //1.4
+    public static ArrayList<ArrayList<String>> glouton (ArrayList<DBentry> database, String input, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase, ArrayList<ArrayList<String>> hsp, Integer seuil, String seed){
+        ArrayList<ArrayList<String>> hsps = hsp;
+
+        for (int i =0; i < hsps.size(); i++){
+            if (!hsp.get(i).isEmpty()) {
+                for (int j = 0; j < hsp.get(i).size(); j++){
+
+                    int seqInputFirst = positionInput.get(i).get(j)-1;
+                    int seqInputLast = positionInput.get(i).get(j) + seed.length()+1;
+                    int seqDataFirst = positionDatabase.get(i).get(j);
+                    int seqDataLast = positionDatabase.get(i).get(j) + seed.length();
+
+                    int score = 0;
+                    int maxScore = 0;
+
+                    boolean extendLeft = true;
+                    boolean extendRight = true;
+
+                    while(extendLeft && extendRight){
+
+                        if (seqInputFirst < 0 && seqDataFirst < 0 && maxScore - score >= seuil){
+                            extendLeft = false;
+                        }
+
+                        if (seqDataLast > database.get(i).getSequence().length() && seqInputLast > input.length() && maxScore - score >= seuil){
+                            extendRight = false;
+                        }
+
+                        int scoreLeft = 0;
+
+                        //extend gauche
+                        if (extendLeft){
+                            scoreLeft = 5 + score;
+                        } else {
+                            scoreLeft = -4 + score;
+                        }
+
+                        int scoreRight = 0;
+
+                        //extend droite
+                        if (extendRight){
+                            scoreRight = 5 + score;
+                        } else {
+                            scoreRight = -4 + score;
+                        }
+
+                        //on regarde quel est le meilleur extend
+                        if (extendRight && scoreLeft >= scoreRight){
+                            hsps.get(i).set(j, input.charAt(seqInputFirst) +(hsps.get(i).get(j)));
+                            score = scoreLeft;
+                            seqInputFirst -= 1;
+                            seqDataFirst -= 1;
+                        } else if (extendLeft && scoreLeft < scoreRight){
+                            hsps.get(i).set(j, (hsps.get(i).get(j))+input.charAt(seqInputLast));
+                            score = scoreRight;
+                            seqInputLast -= 1;
+                            seqDataLast -= 1;
+                        }
+
+                        if (score > maxScore){
+                            maxScore = score;
+                        }
+                        System.out.println(hsps);
+                    }
+                }
+            }
+        }
+
+        return hsps;
+    }
     //1.5
     //1.6
     //1.7
     public static void main(String[] args) throws FileNotFoundException {
         //System.out.println(readFasta("src/tRNAs.fasta"));
         ArrayList<DBentry> db = new ArrayList<DBentry>();
-        ArrayList<DBentry> input = readFasta("src/unknown.fasta");
+        //ArrayList<DBentry> input = readFasta("src/unknown.fasta");
         DBentry x = new DBentry("BRUH","AAAB");
         db.add(x);
         DBentry y = new DBentry("BRUH1","BAAA");
@@ -90,22 +159,30 @@ public class Main {
         DBentry z = new DBentry("BRUH2","ACAA");
         db.add(z);
         //readFasta("src/tRNAs.fasta", database);
-        ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
-        ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
-        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
-        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
+//        ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
+//        ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
+//        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
+//        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
+//        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
         //System.out.println(kmer(unknown.get(1), 11));
 
         //Creer ici la database pour avoir acces partout
         //System.out.println("GGGAGAATGACTGAGTGGTTAAAAGTGACAGACTGTAAATCTGTTGAAATTATTTCTACGTAGGTTCGAATCCTGCTTCTCCCA".length());
 
         //HSP
-        System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
+//        System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
+//
+//        //position dans les sequences de la database
+//        System.out.println(position);
+//
+//        //position de l'input
+//        System.out.println(positionInput);
 
-        //position dans les sequences de la database
-        System.out.println(position);
+        String input = "AAA";
+        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<String>> hsps = hsp(input,db , "111", position, positionInput);
 
-        //position de l'input
-        System.out.println(positionInput);
+        System.out.println(glouton(db,input,positionInput, position, hsps,4,"11111111111"));
     }
 }
