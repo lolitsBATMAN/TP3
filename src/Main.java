@@ -146,14 +146,14 @@ public class Main {
                     }
 
 
-                    //EXTENTION CHOICE
+                    //EXTENSION CHOICE -> Based on match -> if both miss -> based on score
 
                     //extend left (left match && rightMatch or only left match)
                     if (!endLeft && leftMatch) {
                         char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
                         //extend hsp
                         hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
-                        //extend positions
+                        //extend start positions to the left
                         dbPositions.get(i).set(j, kmerDBstartPosition - 1);
                         sequencePositions.get(i).set(j, kmerSequenceStartPosition - 1);
 
@@ -169,9 +169,7 @@ public class Main {
                         char rightCar = database.get(i).getSequence().charAt(kmerDBendPosition + 1);
                         //extend hsp
                         hsps.get(i).set(j, hsps.get(i).get(j) + rightCar);
-                        //extend positions
-                        dbPositions.get(i).set(j,kmerDBendPosition + 1);
-                        sequencePositions.get(i).set(j, kmerSequenceEndPosition + 1);
+
 
                         //next car
                         kmerDBendPosition++;
@@ -179,8 +177,11 @@ public class Main {
 
                     }
 
+
                     //if left and right false ->chose better score
                     if (!rightMatch && !leftMatch){
+
+
                         if(!endLeft && currLeftScore>= currRightScore){
                             //extend left
                             char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
@@ -199,9 +200,7 @@ public class Main {
                             char rightCar = database.get(i).getSequence().charAt(kmerDBendPosition + 1);
                             //extend hsp
                             hsps.get(i).set(j, hsps.get(i).get(j) + rightCar);
-                            //extend positions
-                            dbPositions.get(i).set(j,kmerDBendPosition + 1);
-                            sequencePositions.get(i).set(j, kmerSequenceEndPosition + 1);
+
 
                             //next car
                             kmerDBendPosition++;
@@ -251,12 +250,15 @@ public class Main {
 
         ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
 
+        System.out.println(hsps);
+        //positions
+        System.out.println(position);
+        System.out.println(positionInput);
+
         System.out.println(extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,5));
 
-        //position dans les sequences de la database
+        //positions
         System.out.println(position);
-
-        //position de l'input
         System.out.println(positionInput);
 
 
