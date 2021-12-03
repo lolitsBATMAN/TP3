@@ -95,9 +95,10 @@ public class Main {
 
     //1.4
     public static ArrayList<ArrayList<String>> glouton (ArrayList<DBentry> database, String input, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase, ArrayList<ArrayList<String>> hsp, Integer seuil, String seed){
-        ArrayList<ArrayList<String>> hsps = hsp;
 
-        for (int i =0; i < hsps.size(); i++){
+        hsp= hsp(input, database, seed,  positionDatabase, positionInput);
+
+        for (int i = 0; i < hsp.size(); i++){
             if (!hsp.get(i).isEmpty()) {
                 for (int j = 0; j < hsp.get(i).size(); j++) {
 
@@ -113,10 +114,6 @@ public class Main {
                     boolean extendRight = true;
 
                     while(extendLeft || extendRight){
-//                        System.out.println("-------------------------");
-//                        System.out.println(maxScore);
-//                        System.out.println(score);
-//                        System.out.println(seuil);
                         int scoreLeft = 0;
                         int scoreRight = 0;
 
@@ -130,7 +127,7 @@ public class Main {
                             }
                         }
 
-                        if (seqDataLast == database.get(i).getSequence().length()  || seqInputLast == input.length()) {
+                        if (seqDataLast == database.get(i).getSequence().length()   || seqInputLast == input.length()) {
                             extendRight = false;
                         } else {
                             if (input.charAt(seqInputLast) == database.get(i).getSequence().charAt(seqDataLast)){
@@ -143,33 +140,37 @@ public class Main {
                         if (!extendLeft && extendRight) {
                             score += scoreRight;
                             if (maxScore - score < seuil){
-                                hsps.get(i).set(j, hsps.get(i).get(j)+input.charAt(seqInputLast));
+                                hsp.get(i).set(j, hsp.get(i).get(j)+input.charAt(seqInputLast));
                                 seqInputLast++;
                                 seqDataLast++;
                             }
-                        } else if (extendLeft && !extendRight) {
+                        }
+
+                        if (extendLeft && !extendRight) {
                             score += scoreLeft;
                             if (maxScore - score < seuil) {
-                                hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
-                                positionDatabase.get(i).set(j, positionDatabase.get(i).get(j) - 1);
-                                positionInput.get(i).set(j, positionInput.get(i).get(j) - 1);
+                                hsp.get(i).set(j, input.charAt(seqInputFirst) + hsp.get(i).get(j));
+                                positionDatabase.get(i).set(j, positionDatabase.get(i).get(j)-1);
+                                positionInput.get(i).set(j, positionInput.get(i).get(j)-1);
                                 seqInputFirst--;
                                 seqDataFirst--;
                             }
-                        } else if (extendLeft && extendRight) {
+                        }
+
+                        if (extendLeft && extendRight) {
+                            score += scoreLeft;
                             if (scoreLeft >= scoreRight){
-                                score += scoreLeft;
                                 if (maxScore - score < seuil) {
-                                    hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
-                                    positionDatabase.get(i).set(j, positionDatabase.get(i).get(j) - 1);
-                                    positionInput.get(i).set(j, positionInput.get(i).get(j) - 1);
+                                    hsp.get(i).set(j, input.charAt(seqInputFirst) + hsp.get(i).get(j));
+                                    positionDatabase.get(i).set(j, positionDatabase.get(i).get(j)-1);
+                                    positionInput.get(i).set(j, positionInput.get(i).get(j)-1);
                                     seqInputFirst--;
                                     seqDataFirst--;
                                 }
                             } else {
                                 score += scoreRight;
                                 if (maxScore - score < seuil) {
-                                    hsps.get(i).set(j, hsps.get(i).get(j) + input.charAt(seqInputLast));
+                                    hsp.get(i).set(j, hsp.get(i).get(j) + input.charAt(seqInputLast));
                                     seqInputLast++;
                                     seqDataLast++;
                                 }
@@ -189,11 +190,11 @@ public class Main {
             }
         }
 
-        removeDuplicates(hsps);
+        removeDuplicates(hsp);
         removeDuplicates(positionInput);
         removeDuplicates(positionDatabase);
 
-        return hsps;
+        return hsp;
     }
     //1.5
 
@@ -205,13 +206,11 @@ public class Main {
         ArrayList<DBentry> database = readFasta(output);
         ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , seed, position, positionInput);
-        System.out.println(unknown.get(0).getSequence());
-        System.out.println(database.get(57).getSequence());
-        System.out.println(hsps);
-//        System.out.println(position);
-//        System.out.println(positionInput);
-        System.out.println(glouton(database, unknown.get(0).getSequence(), positionInput, position, hsps, seuil, seed).get(57));
+        ArrayList<ArrayList<String>> hsps = new ArrayList<ArrayList<String>>();
+        //System.out.println(unknown.get(0).getSequence());
+        //System.out.println(database.get(57).getSequence());
+        //System.out.println(hsps.get(57));
+        System.out.println(glouton(database, unknown.get(0).getSequence(), positionInput, position, hsps, seuil, seed));
         System.out.println(position);
         System.out.println(positionInput);
     }
@@ -224,15 +223,12 @@ public class Main {
 //        String input = "ABCDEFGYGFEDCBA";
 //        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
 //        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-//        ArrayList<ArrayList<String>> hsps = hsp(input,db,"111", position, positionInput);
+//        ArrayList<ArrayList<String>> hsps = new ArrayList<ArrayList<String>>();
+//        System.out.println(glouton(db,input,positionInput, position, hsps,4,"111"));
 //        System.out.println(hsps);
 //        System.out.println(position);
 //        System.out.println(positionInput);
-//        System.out.println(glouton(db,input,positionInput, position, hsps,4,"11"));
-//        //System.out.println(hsps);
-//        System.out.println(position);
-//        System.out.println(positionInput);
 
-        plast("src/unknown.fasta","src/tRNAs.fasta", "11111111111", 4);
+        plast("src/unknown.fasta","src/tRNAs.fasta", "111111111111", 4);
     }
 }
