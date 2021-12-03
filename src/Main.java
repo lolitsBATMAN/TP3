@@ -78,8 +78,6 @@ public class Main {
     //1.4
     public static ArrayList<ArrayList<String>> extendHsps (ArrayList<ArrayList<String>> hsps,ArrayList<DBentry> database, String sequence, ArrayList<ArrayList<Integer>> dbPositions, ArrayList<ArrayList<Integer>> sequencePositions, int seuil) {
 
-
-        //for each hsp ->take start and end position
         for (int i = 0; i < hsps.size(); i++) { // kmers in this database line
 
             boolean endLeft = false;
@@ -106,6 +104,8 @@ public class Main {
                 boolean leftMatch = false;
                 boolean rightMatch = false;
 
+
+
                 while ((currLeftScore > maxScoreLeft - seuil || currRightScore > maxScoreRight - seuil) && (!endLeft || !endRight)) {
 
 
@@ -124,7 +124,7 @@ public class Main {
                                 leftMatch = true;
                                 currLeftScore +=5;
                                 if (currLeftScore > maxScoreLeft) {
-                                    maxScoreLeft += currLeftScore;
+                                    maxScoreLeft = currLeftScore;
                                 }
                             } else {
                                 currLeftScore -=4;
@@ -138,7 +138,7 @@ public class Main {
                             rightMatch = true;
                             currRightScore +=5;
                             if(currRightScore>maxScoreRight) {
-                                maxScoreRight += currRightScore;
+                                maxScoreRight = currRightScore;
                             }
                         } else {
                             currRightScore -=4;
@@ -153,7 +153,7 @@ public class Main {
                         char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
                         //extend hsp
                         hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
-                        //extend start positions to the left
+                        //extend start positions
                         dbPositions.get(i).set(j, kmerDBstartPosition - 1);
                         sequencePositions.get(i).set(j, kmerSequenceStartPosition - 1);
 
@@ -187,7 +187,7 @@ public class Main {
                             char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
                             //extend hsp
                             hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
-                            //extend positions
+                            //extend start positions
                             dbPositions.get(i).set(j, kmerDBstartPosition - 1);
                             sequencePositions.get(i).set(j, kmerSequenceStartPosition - 1);
 
@@ -217,13 +217,27 @@ public class Main {
 
             }
         }
+
         return hsps;
+    }
+
+    //1.5
+    public static ArrayList<ArrayList<String>> fusionHsp (ArrayList<ArrayList<String>> extendedHsps,ArrayList<DBentry> database, String sequence, ArrayList<ArrayList<Integer>> dbPositions, ArrayList<ArrayList<Integer>> sequencePositions, int seuil) {
+
+        //condition de fusion : end index dun hsp > start position dun autre && < end
+        for (int i =0; i<extendedHsps.size(); i++){
+
+        }
     }
 
 
 
-    //1.5
-    //1.6
+
+
+
+
+
+        //1.6
     //1.7
     public static void main(String[] args) throws FileNotFoundException {
         //System.out.println(readFasta("src/tRNAs.fasta"));
