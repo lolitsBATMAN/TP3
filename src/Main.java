@@ -101,64 +101,88 @@ public class Main {
             if (!hsp.get(i).isEmpty()) {
                 for (int j = 0; j < hsp.get(i).size(); j++) {
 
-                    int seqInputFirst = positionInput.get(i).get(j) - 1;
+                    int seqInputFirst = positionInput.get(i).get(j)-1;
                     int seqInputLast = positionInput.get(i).get(j) + seed.length();
                     int seqDataFirst = positionDatabase.get(i).get(j)-1;
                     int seqDataLast = positionDatabase.get(i).get(j) + seed.length();
 
-                    int score = 0;
                     int maxScore = 0;
+                    int score = 0;
 
                     boolean extendLeft = true;
                     boolean extendRight = true;
 
-                    while (extendLeft && extendRight) {
-                        if (seqInputFirst == -1 || seqDataFirst == -1 || maxScore - score >= seuil) {
-                            extendLeft = false;
-                        }
-
-                        if (seqDataLast == database.get(i).getSequence().length()  || seqInputLast == input.length() || maxScore - score >= seuil) {
-                            extendRight = false;
-                        }
+                    while(extendLeft || extendRight){
+//                        System.out.println("-------------------------");
+//                        System.out.println(maxScore);
+//                        System.out.println(score);
+//                        System.out.println(seuil);
                         int scoreLeft = 0;
-
-                        //extend gauche
-                        if (extendLeft) {
-                            if (input.charAt(seqInputFirst) == database.get(i).getSequence().charAt(seqDataFirst)){
-                                scoreLeft = 5 + score;
-                            } else {
-                                scoreLeft = -4 + score;
-                            }
-                        }
-
                         int scoreRight = 0;
 
-                        //extend droite
-                        if (extendRight) {
-                            if (input.charAt(seqInputLast) == database.get(i).getSequence().charAt(seqDataLast)){
-                                scoreRight = 5 + score;
+                        if (seqInputFirst == -1 || seqDataFirst == -1){
+                            extendLeft = false;
+                        } else {
+                            if (input.charAt(seqInputFirst) == database.get(i).getSequence().charAt(seqDataFirst)){
+                                scoreLeft += 5;
                             } else {
-                                scoreRight = -4 + score;
+                                scoreLeft -= 4;
                             }
                         }
 
-                        //on regarde quel est le meilleur extend
-                        if (extendLeft && scoreLeft >= scoreRight){
-                            hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
-                            score = scoreLeft;
-                            seqInputFirst--;
-                            positionInput.get(i).set(j,positionInput.get(i).get(j)-1);
-                            seqDataFirst--;
-                            positionDatabase.get(i).set(j,positionDatabase.get(i).get(j)-1);
-                        } else if (extendRight && scoreLeft < scoreRight){
-                            hsps.get(i).set(j, hsps.get(i).get(j)+input.charAt(seqInputLast));
-                            score = scoreRight;
-                            seqInputLast++;
-                            seqDataLast++;
+                        if (seqDataLast == database.get(i).getSequence().length()  || seqInputLast == input.length()) {
+                            extendRight = false;
+                        } else {
+                            if (input.charAt(seqInputLast) == database.get(i).getSequence().charAt(seqDataLast)){
+                                scoreRight += 5;
+                            } else {
+                                scoreRight -= 4;
+                            }
+                        }
+
+                        if (!extendLeft && extendRight) {
+                            score += scoreRight;
+                            if (maxScore - score < seuil){
+                                hsps.get(i).set(j, hsps.get(i).get(j)+input.charAt(seqInputLast));
+                                seqInputLast++;
+                                seqDataLast++;
+                            }
+                        } else if (extendLeft && !extendRight) {
+                            score += scoreLeft;
+                            if (maxScore - score < seuil) {
+                                hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
+                                positionDatabase.get(i).set(j, positionDatabase.get(i).get(j) - 1);
+                                positionInput.get(i).set(j, positionInput.get(i).get(j) - 1);
+                                seqInputFirst--;
+                                seqDataFirst--;
+                            }
+                        } else if (extendLeft && extendRight) {
+                            if (scoreLeft >= scoreRight){
+                                score += scoreLeft;
+                                if (maxScore - score < seuil) {
+                                    hsps.get(i).set(j, input.charAt(seqInputFirst) + hsps.get(i).get(j));
+                                    positionDatabase.get(i).set(j, positionDatabase.get(i).get(j) - 1);
+                                    positionInput.get(i).set(j, positionInput.get(i).get(j) - 1);
+                                    seqInputFirst--;
+                                    seqDataFirst--;
+                                }
+                            } else {
+                                score += scoreRight;
+                                if (maxScore - score < seuil) {
+                                    hsps.get(i).set(j, hsps.get(i).get(j) + input.charAt(seqInputLast));
+                                    seqInputLast++;
+                                    seqDataLast++;
+                                }
+                            }
                         }
 
                         if (score > maxScore){
                             maxScore = score;
+                        }
+
+                        if (maxScore - score >= seuil){
+                            extendLeft = false;
+                            extendRight = false;
                         }
                     }
                 }
@@ -182,32 +206,30 @@ public class Main {
         ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , seed, position, positionInput);
-        System.out.println(hsps.get(57));
-        System.out.println(position.get(57));
-        System.out.println(positionInput.get(57));
+        System.out.println(unknown.get(0).getSequence());
+        System.out.println(database.get(57).getSequence());
+        System.out.println(hsps);
+//        System.out.println(position);
+//        System.out.println(positionInput);
         System.out.println(glouton(database, unknown.get(0).getSequence(), positionInput, position, hsps, seuil, seed).get(57));
-        System.out.println(position.get(57));
-        System.out.println(positionInput.get(57));
+        System.out.println(position);
+        System.out.println(positionInput);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
 //        ArrayList<DBentry> db = new ArrayList<DBentry>();
-//        DBentry x = new DBentry("BRUH","ABCABC");
+//        DBentry x = new DBentry("BRUH","ABCDEFGXGFEDCBA");
 //        db.add(x);
-//        DBentry y = new DBentry("BRUH1","ABCCAB");
-//        db.add(y);
-//        DBentry z = new DBentry("BRUH2","ABCBAB");
-//        db.add(z);
 //
-//        String input = "ABC";
+//        String input = "ABCDEFGYGFEDCBA";
 //        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
 //        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-//        ArrayList<ArrayList<String>> hsps = hsp(input,db,"11", position, positionInput);
+//        ArrayList<ArrayList<String>> hsps = hsp(input,db,"111", position, positionInput);
 //        System.out.println(hsps);
 //        System.out.println(position);
 //        System.out.println(positionInput);
 //        System.out.println(glouton(db,input,positionInput, position, hsps,4,"11"));
-//        System.out.println(hsps);
+//        //System.out.println(hsps);
 //        System.out.println(position);
 //        System.out.println(positionInput);
 
