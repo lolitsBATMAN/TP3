@@ -80,6 +80,7 @@ public class Main {
 
         for (int i = 0; i < hsps.size(); i++) { // kmers in this database line
 
+
             boolean endLeft = false;
             boolean endRight = false;
 
@@ -89,8 +90,10 @@ public class Main {
                 int kmerDBstartPosition = dbPositions.get(i).get(j);
                 int kmerDBendPosition = kmerDBstartPosition + hsps.get(i).get(j).length() - 1;
 
+
                 //sequence position
                 int kmerSequenceStartPosition = sequencePositions.get(i).get(j);
+
                 int kmerSequenceEndPosition = kmerSequenceStartPosition + hsps.get(i).get(j).length() - 1;
 
 
@@ -106,7 +109,9 @@ public class Main {
 
 
 
-                while ((currLeftScore > maxScoreLeft - seuil || currRightScore > maxScoreRight - seuil) && (!endLeft || !endRight)) {
+                while ((currLeftScore > maxScoreLeft - seuil && currRightScore > maxScoreRight - seuil) && (!endLeft || !endRight)) {
+
+
 
 
                     //outOfBoundsVerification
@@ -119,7 +124,7 @@ public class Main {
 
 
                     //chek left
-                        if (!endLeft && currLeftScore > maxScoreLeft - seuil) {
+                        if (!endLeft) {
                             if (database.get(i).getSequence().charAt(kmerDBstartPosition - 1) == sequence.charAt(kmerSequenceStartPosition - 1)) {
                                 leftMatch = true;
                                 currLeftScore +=5;
@@ -133,7 +138,7 @@ public class Main {
 
 
                     //chek right
-                    if (!endRight && currRightScore > maxScoreRight - seuil) {
+                    if (!endRight) {
                         if (database.get(i).getSequence().charAt(kmerDBendPosition + 1) == sequence.charAt(kmerSequenceEndPosition + 1)) {
                             rightMatch = true;
                             currRightScore +=5;
@@ -182,9 +187,9 @@ public class Main {
                     if (!rightMatch && !leftMatch){
 
 
-                        if(!endLeft && currLeftScore>= currRightScore){
+                        if(!endLeft && currLeftScore >= currRightScore && currLeftScore > maxScoreLeft - seuil ){
                             //extend left
-                            char leftCar = database.get(i).getSequence().charAt(kmerDBstartPosition - 1);
+                            char leftCar = sequence.charAt(kmerSequenceStartPosition - 1);
                             //extend hsp
                             hsps.get(i).set(j, leftCar + hsps.get(i).get(j));
                             //extend start positions
@@ -195,9 +200,9 @@ public class Main {
                             kmerDBstartPosition--;
                             kmerSequenceStartPosition--;
 
-                        }else if (!endRight){
+                        }else if (!endRight && currRightScore > maxScoreRight - seuil){
                             //extend right
-                            char rightCar = database.get(i).getSequence().charAt(kmerDBendPosition + 1);
+                            char rightCar = sequence.charAt(kmerSequenceEndPosition + 1);
                             //extend hsp
                             hsps.get(i).set(j, hsps.get(i).get(j) + rightCar);
 
@@ -222,33 +227,25 @@ public class Main {
     }
 
     //1.5
-    public static ArrayList<ArrayList<String>> fusionHsp (ArrayList<ArrayList<String>> extendedHsps,ArrayList<DBentry> database, ArrayList<ArrayList<Integer>> dbPositions) {
+    public static ArrayList<ArrayList<String>> fusionHsp (ArrayList<ArrayList<String>> extendedHsps,ArrayList<DBentry> database, ArrayList<ArrayList<Integer>> dbPositions, ArrayList<ArrayList<Integer>> sequencePositions) {
 
         //condition de fusion : end index dun hsp > start position dun autre && < end
-        //jmodifie la hsp sa sera le bordel dedans mais on senfou on ne la plus besoin apres
-        //juste besoin de prendre le plusse grosse fusion a la fin
-
-        int startOfMax = 0;
-        int endOfMax = 0;
-        String fusionMax = "zzz";
-        int dbSequence = 0;
-
 
             for (int i = 0; i < extendedHsps.size(); i++) {
                 for (int j = 0; j < extendedHsps.get(i).size(); j++) {
 
                     //end index
                     int hspSize = extendedHsps.get(i).get(j).length();
-                    int hspEndIndex = dbPositions.get(i).get(j) + hspSize - 1;
+                    int hspEndIndex = sequencePositions.get(i).get(j) + hspSize - 1;
 
                     //chek all other hsps
                     for (int k = 0; k < extendedHsps.size(); k++) {
-                        for (int l = 0; k < extendedHsps.get(k).size(); k++) { //tbnk 4 boucle
+                        for (int l = 0; k < extendedHsps.get(k).size(); k++) {
 
                             //start and end index of another hsp
-                            int otherHspStart = dbPositions.get(k).get(l);
+                            int otherHspStart = sequencePositions.get(k).get(l);
                             int otherHspSize = extendedHsps.get(k).get(l).length();
-                            int otherHspEnd = dbPositions.get(k).get(l) + otherHspSize - 1;
+                            int otherHspEnd = sequencePositions.get(k).get(l) + otherHspSize - 1;
 
                             //condition de fusion
                             if (hspEndIndex > otherHspStart && hspEndIndex < otherHspEnd) {
@@ -261,22 +258,11 @@ public class Main {
                                 String fusionFinale = extendedHsps.get(i).get(j) + concatPartOfOtherHsp;
 
                                 //get les index de debut et de fin de la sequence fusionee
-                                int start = dbPositions.get(i).get(j);
+                                int start = sequencePositions.get(i).get(j);
                                 int end = start + fusionFinale.length()-1;
                                 //add fusion
-                                extendedHsps.get(i).set(j,start + " " +fusionFinale + " " + end);
-
-
-                                //Fusion Max ?
-                                if (fusionFinale.length()> fusionMax.length()){
-                                    fusionMax = fusionFinale;
-                                    startOfMax = dbPositions.get(i).get(j);
-                                    endOfMax = startOfMax + fusionFinale.length()-1;
-
-                                    //database line
-                                    dbSequence = i;
-//                                    System.out.println(i);
-                                }
+//                                extendedHsps.get(i).set(j,start + " " +fusionFinale + " " + end);
+                                extendedHsps.get(i).set(j,fusionFinale);
 
                             }
 
@@ -286,10 +272,11 @@ public class Main {
 
                 }
             }
+//            System.out.println(database.get(dbSequence).getSequenceInfo());
+//            System.out.println("La fusionnée         : "+startInput + " " + fusionMax + " " + endInput);
+//            System.out.println("Celle de la database : "+startOfMax + " " + database.get(dbSequence).getSequence() + " " + endOfMax);
 
-            System.out.println(startOfMax + " " + fusionMax + " " + endOfMax);
 
-        //}
 
         return extendedHsps;
     }
@@ -299,34 +286,96 @@ public class Main {
 
 
 
+    public static int calculateBruteScore(ArrayList<ArrayList<String>> hsps,ArrayList<DBentry> database,ArrayList<ArrayList<Integer>>databasePositions, int i, int j){
+
+        String currentHsp = hsps.get(i).get(j);
+        int dbSequenceNumber = i;
+        int sequenceIndex = databasePositions.get(i).get(j);
+
+        int score = 0;
+        for (int k = 0; k<currentHsp.length(); k++){
+            if (currentHsp.charAt(k) == database.get(dbSequenceNumber).getSequence().charAt(sequenceIndex)){
+                score +=5;
+            }else{
+                score-=4;
+            }
+            j++;
+        }
+        return score;
+
+    }
+
+    public static int databaseTotalSize(ArrayList<DBentry> database){
+        int len = 0;
+        for (int i= 0; i<database.size(); i++){
+            len += database.get(i).sequence.length();
+        }
+        return len;
+    }
 
 
-        //1.6
+
+
+    //1.6
+    public static ArrayList<HspStat> getHspStat(ArrayList<ArrayList<String>> hsps,ArrayList<DBentry> database,String sequence, ArrayList<ArrayList<Integer>>databasePositions,ArrayList<ArrayList<Integer>>sequencePositions ){
+
+        double lamda = 0.192;
+        double k = 0.176;
+
+        ArrayList<HspStat> hspStats= new ArrayList<>();
+
+        for (int i = 0; i<hsps.size(); i++){
+            for(int j = 0; j< hsps.get(i).size(); j++){
+
+                int startSequenceIndex = sequencePositions.get(i).get(j);
+                int startDbIndex = databasePositions.get(i).get(j);
+
+                String currHsp = hsps.get(i).get(j);
+                int bruteScore = calculateBruteScore(hsps,database,databasePositions,i,j);
+                long bitScore = Math.round(lamda*bruteScore - Math.log(k)/Math.log(2));
+                double eValue = databaseTotalSize(database)*sequence.length()/Math.pow(2,bitScore);
+
+                HspStat currHspStat = new HspStat(currHsp,bruteScore,bitScore,eValue,startSequenceIndex,startDbIndex);
+
+                hspStats.add(currHspStat);
+            }
+        }
+        return hspStats;
+    }
+
+
+
+    public static void bestBitScore (ArrayList<HspStat> hspStats){
+
+        int max = 0;
+        for (int i=0; i <hspStats.size()-1; i++){
+            if (hspStats.get(i).bitScore > hspStats.get(i+1).bitScore){
+                max = i;
+            }
+        }
+    }
+
+
+
+
+
+
+
     //1.7
     public static void main(String[] args) throws FileNotFoundException {
         //System.out.println(readFasta("src/tRNAs.fasta"));
         ArrayList<DBentry> db = new ArrayList<DBentry>();
         ArrayList<DBentry> input = readFasta("src/unknown.fasta");
-        DBentry x = new DBentry("BRUH","AAAB");
-        db.add(x);
-        DBentry y = new DBentry("BRUH1","BAAA");
-        db.add(y);
-        DBentry z = new DBentry("BRUH2","ACAA");
-        db.add(z);
+
         //readFasta("src/tRNAs.fasta", database);
         ArrayList<DBentry> unknown = readFasta("src/unknown.fasta");
         ArrayList<DBentry> database = readFasta("src/tRNAs.fasta");
         ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
         ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-        //System.out.println(kmer(unknown.get(1), 11));
 
-        //Creer ici la database pour avoir acces partout
-        //System.out.println("GGGAGAATGACTGAGTGGTTAAAAGTGACAGACTGTAAATCTGTTGAAATTATTTCTACGTAGGTTCGAATCCTGCTTCTCCCA".length());
-
-        //HSP
-        //System.out.println(hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput));
 
         ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(),database , "11111111111", position, positionInput);
+
 
         System.out.println("hsp de base");
         System.out.println(hsps);
@@ -343,8 +392,11 @@ public class Main {
         System.out.println(positionInput);
 
         System.out.println("fusion hsp");
-        System.out.println(fusionHsp(extendedHsps,database,position));
+        ArrayList<ArrayList<String>> fusion = fusionHsp(extendedHsps,database,position, positionInput);
+        System.out.println(fusion);
 
 
+        //calcul
+        getHspStat(fusion,database,unknown.get(0).getSequence(),position,positionInput);
     }
 }
