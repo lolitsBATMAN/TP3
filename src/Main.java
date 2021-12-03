@@ -226,26 +226,38 @@ public class Main {
         return hsps;
     }
 
+
+
+
     //1.5
     public static ArrayList<ArrayList<String>> fusionHsp (ArrayList<ArrayList<String>> extendedHsps,ArrayList<DBentry> database, ArrayList<ArrayList<Integer>> dbPositions, ArrayList<ArrayList<Integer>> sequencePositions) {
 
         //condition de fusion : end index dun hsp > start position dun autre && < end
 
+
             for (int i = 0; i < extendedHsps.size(); i++) {
                 for (int j = 0; j < extendedHsps.get(i).size(); j++) {
 
-                    //end index
+                    //sortir si ya aucun hsp a cette ligne ou seulement 1 (donc pas de chevauchement->skip line)
+                    if(extendedHsps.get(i).size()==0 || extendedHsps.get(i).size()==1){
+                        break;
+                    }
+
+                    //end index of current hsp we want to compare
                     int hspSize = extendedHsps.get(i).get(j).length();
                     int hspEndIndex = sequencePositions.get(i).get(j) + hspSize - 1;
 
                     //chek all other hsps
-                    for (int k = 0; k < extendedHsps.size(); k++) {
-                        for (int l = 0; k < extendedHsps.get(k).size(); k++) {
+                    for (int l = 0; l < extendedHsps.get(i).size(); l++) {
 
-                            //start and end index of another hsp
-                            int otherHspStart = sequencePositions.get(k).get(l);
-                            int otherHspSize = extendedHsps.get(k).get(l).length();
-                            int otherHspEnd = sequencePositions.get(k).get(l) + otherHspSize - 1;
+//                        System.out.println("i = "+i);
+//                        System.out.println("j = " +j);
+//                        System.out.println("l = "+l);
+
+                            //start and end index of the other hsp
+                            int otherHspStart = sequencePositions.get(i).get(l);
+                            int otherHspSize = extendedHsps.get(i).get(l).length();
+                            int otherHspEnd = sequencePositions.get(i).get(l) + otherHspSize - 1;
 
                             //condition de fusion
                             if (hspEndIndex > otherHspStart && hspEndIndex < otherHspEnd) {
@@ -254,30 +266,20 @@ public class Main {
                                 //a partir de end index du current hsp, concat lautre hsp a part sa partie chevauchee
                                 int longueurChevauchement = hspEndIndex - otherHspStart;
 
-                                String concatPartOfOtherHsp = extendedHsps.get(k).get(l).substring(longueurChevauchement);
+                                String concatPartOfOtherHsp = (extendedHsps.get(i).get(l).substring(longueurChevauchement));
+
                                 String fusionFinale = extendedHsps.get(i).get(j) + concatPartOfOtherHsp;
 
-                                //get les index de debut et de fin de la sequence fusionee
-                                int start = sequencePositions.get(i).get(j);
-                                int end = start + fusionFinale.length()-1;
+
                                 //add fusion
-//                                extendedHsps.get(i).set(j,start + " " +fusionFinale + " " + end);
-                                extendedHsps.get(i).set(j,fusionFinale);
+                                extendedHsps.get(i).set(j, fusionFinale);
 
                             }
-
-                        }
 
                     }
 
                 }
             }
-//            System.out.println(database.get(dbSequence).getSequenceInfo());
-//            System.out.println("La fusionnée         : "+startInput + " " + fusionMax + " " + endInput);
-//            System.out.println("Celle de la database : "+startOfMax + " " + database.get(dbSequence).getSequence() + " " + endOfMax);
-
-
-
         return extendedHsps;
     }
 
@@ -323,19 +325,30 @@ public class Main {
         double k = 0.176;
 
         ArrayList<HspStat> hspStats= new ArrayList<>();
+        //replace all hsp in this new one
+
 
         for (int i = 0; i<hsps.size(); i++){
+
+            //pour garder que les i index represente la ligne de la database
+            if (hsps.get(i).isEmpty()){
+                hspStats.add(null);
+            }
+
             for(int j = 0; j< hsps.get(i).size(); j++){
+
+
 
                 int startSequenceIndex = sequencePositions.get(i).get(j);
                 int startDbIndex = databasePositions.get(i).get(j);
 
                 String currHsp = hsps.get(i).get(j);
                 int bruteScore = calculateBruteScore(hsps,database,databasePositions,i,j);
-                long bitScore = Math.round(lamda*bruteScore - Math.log(k)/Math.log(2));
+                long bitScore = Math.round((lamda*bruteScore - Math.log(k))/Math.log(2));
                 double eValue = databaseTotalSize(database)*sequence.length()/Math.pow(2,bitScore);
 
                 HspStat currHspStat = new HspStat(currHsp,bruteScore,bitScore,eValue,startSequenceIndex,startDbIndex);
+
 
                 hspStats.add(currHspStat);
             }
@@ -345,16 +358,20 @@ public class Main {
 
 
 
-    public static void bestBitScore (ArrayList<HspStat> hspStats){
+    public static void bestBitScore (ArrayList<HspStat> hspStats) {
 
-        int max = 0;
-        for (int i=0; i <hspStats.size()-1; i++){
-            if (hspStats.get(i).bitScore > hspStats.get(i+1).bitScore){
-                max = i;
+        int maxi = 0;
+        for (int i = 0; i < hspStats.size(); i++) {
+            for (int j = 0; j < hspStats.size() - 1; j++) {
+
+                if (hspStats.get(i).bitScore > hspStats.get(i + 1).bitScore) {
+                    maxi = i;
+                }
             }
         }
-    }
+        System.out.println(hspStats.get(maxi).bitScore);
 
+    }
 
 
 
@@ -384,19 +401,19 @@ public class Main {
 //      System.out.println(positionInput);
 
         System.out.println("extended hsps");
-        ArrayList<ArrayList<String>> extendedHsps = extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,5);
+        ArrayList<ArrayList<String>> extendedHsps = extendHsps(hsps,database,unknown.get(0).getSequence(),position,positionInput,4);
         System.out.println(extendedHsps);
 
         //positions
         System.out.println(position);
         System.out.println(positionInput);
 
-        System.out.println("fusion hsp");
-        ArrayList<ArrayList<String>> fusion = fusionHsp(extendedHsps,database,position, positionInput);
-        System.out.println(fusion);
+//        System.out.println("fusion hsp");
+//        ArrayList<ArrayList<String>> fusion = fusionHsp(extendedHsps,database,position, positionInput);
+//        System.out.println(fusion);
 
 
         //calcul
-        getHspStat(fusion,database,unknown.get(0).getSequence(),position,positionInput);
+//        getHspStat(fusion,database,unknown.get(0).getSequence(),position,positionInput);
     }
 }
