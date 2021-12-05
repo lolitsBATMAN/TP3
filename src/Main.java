@@ -1,6 +1,9 @@
-import javax.lang.model.type.NullType;
+/**
+ * Chengzong Jiang (20122046)
+ * Ahmad El-Rahim (20157008)
+ */
+
 import java.io.*;
-import java.util.Collections;
 import java.util.Scanner;
 import java.util.ArrayList;
 
