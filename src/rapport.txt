@@ -1,3 +1,9 @@
+Chengzong Jiang (20122046)
+Ahmad El-Rahim  (20157008)
+
+==================================================================================
+				Question 2.1:
+==================================================================================
 ---------------------------------------------
 Input: AGCGGGGTAGAGGAATTGGTTTACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCCT
 
@@ -61,3 +67,148 @@ Input: GCATTCTTAGCTCAGCTGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTAGGATGC
 
 ---------------------------------------------
 total: 2
+
+==================================================================================
+				Question 2.2:
+==================================================================================
+
+Séquence 1:
+M|cat|Malus domestica
+Séquence 2:
+R|tcg|Nephroselmis olivacea
+Séquence 3:
+P|tgg|Phoenix dactylifera
+Séquence 4:
+R|tcg|Chara vulgaris
+
+==================================================================================
+				Question 2.3:
+==================================================================================
+Séquence 1:
+Anticodon:
+	Blast : 	gua
+	Nos résultats: 	cat
+
+Séquence 2:
+Anticodon:
+	Blast: 		tct
+	Nos résultats: 	tcg
+
+Séquence 3:
+Anticodon:
+	Blast: 		Introuvable
+	Nos résultats: 	tgg
+
+Séquence 4:
+Anticodon:
+	Blast: 		tct
+	Nos résultats: 	tcg
+
+
+==================================================================================
+				Question 2.4:
+==================================================================================
+Lorsque nous utilisons des graines plus longues, l'algorithme est plus vite car il
+y a moins de k-mer à étendre et fusionner. Ceci fait que c'est plus précis. La sensibilité augmente.
+
+Lorsque nous utilisons des graines plus courtes, l'algorithme est plus lent car il
+y plus de k-mer à étendre et fusionner. Ceci fait que c'est moins précis. La sensibilité diminue.
+
+==================================================================================
+				Question 2.5:
+==================================================================================
+
+Il y a plus de résultats significatifs et les bitscores sont plus élévés ou égaux.
+
+---------------------------------------------
+Input: AGCGGGGTAGAGGAATTGGTTTACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCCT
+
+>M|cat|Carica_papaya
+# Best HSP score: 347.0, bitscore: 99.0, evalue: 3.665644144501168E-24
+0 AGCGGGGTAGAGGAATTGGTTTACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+0 AGCGGGGTAGAGGAATTGGTCGACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+
+>M|cat|Oryza_sativa_Japonica_Group
+# Best HSP score: 347.0, bitscore: 99.0, evalue: 3.665644144501168E-24
+0 AGCGGGGTAGAGGAATTGGTTTACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+0 AGCGGGGTAGAGGAATTGGTCAACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+
+>M|cat|Vitis_vinifera_2
+# Best HSP score: 246.0, bitscore: 71.0, evalue: 9.83988857462901E-16
+22 ACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+22 ACTCATCAGGCCCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCC 72
+
+>M|cat|Arabidopsis_thaliana
+# Best HSP score: 222.0, bitscore: 64.0, evalue: 1.2595057375525132E-13
+22 ACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCC 69
+22 ACTCATCAGGCTCATGACCTGAAGATTACAGGTTCGAATCCTGTCCCC 69
+
+---------------------------------------------
+total: 4
+
+---------------------------------------------
+Input: ACATCCTTAGCTCAGTAGGATAGAGCAACAGCCTTCTAAGCTGGTGGTCACAGGTTCAAATCCTGTAGGATGTA
+
+>R|tct|Mesostigma_viride
+# Best HSP score: 167.0, bitscore: 49.0, evalue: 4.127148400812075E-9
+30 GCCTTCTAAGCTGGTGGTCACAGGTTCAAATCCTGTA 66
+30 GCCTTCTAAGCTGTAGGTCACAGGTTCAAATCCTGTA 66
+
+>R|tct|Marchantia_polymorpha
+# Best HSP score: 152.0, bitscore: 45.0, evalue: 6.60343744129932E-8
+5 CTTAGCTCAGTAGGATAGAGCAACAGCCTTCTAA 38
+5 CTTAGCTCAGTTGGATAGAGCAACAACCTTCTAA 38
+
+>R|tcg|Marchantia_polymorpha
+# Best HSP score: 152.0, bitscore: 45.0, evalue: 6.60343744129932E-8
+37 AAGCTGGTGGTCACAGGTTCAAATCCTGTAGGAT 70
+37 AAGTTGATGGTCACAGGTTCAAATCCTGTAGGAT 70
+
+---------------------------------------------
+total: 3
+
+---------------------------------------------
+Input: CGCGGAGTAGAGCAGTTTGGTAGCTCGCAAGGCTCATAACCTTGAGGTCACGGGTTCAAATCCTGTCATCCCTA
+
+>P|tgg|Oryza_sativa_Japonica_Group
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+
+>P|tgg|Sorghum_bicolor
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+
+>P|tgg|Vitis_vinifera
+# Best HSP score: 131.0, bitscore: 39.0, evalue: 4.226199962431565E-6
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+46 GTCACGGGTTCCAATCCTGTCATCCCTA 73
+
+---------------------------------------------
+total: 3
+
+---------------------------------------------
+Input: GCATTCTTAGCTCAGCTGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTAGGATGCT
+
+>R|tct|Marchantia_polymorpha
+# Best HSP score: 326.0, bitscore: 93.0, evalue: 2.3460122524807475E-22
+0 GCATTCTTAGCTCAGCTGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTA 66
+0 GCATTCTTAGCTCAGTTGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTA 66
+
+>R|tcg|Marchantia_polymorpha
+# Best HSP score: 257.0, bitscore: 74.0, evalue: 1.2299860718286261E-16
+16 TGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTAGGAT 70
+16 TGGATAGAGCAACAACCTTCGAAGTTGATGGTCACAGGTTCAAATCCTGTAGGAT 70
+
+>R|tct|Mesostigma_viride
+# Best HSP score: 163.0, bitscore: 48.0, evalue: 8.25429680162415E-9
+1 CATTCTTAGCTCAGCTGGATAGAGCAACAACCTTCTAA 38
+1 CATTCTTAGCTCAGTTGGATAGAGCAACGGCCTTCTAA 38
+
+---------------------------------------------
+total: 3
+
+
+
+
