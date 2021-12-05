@@ -53,9 +53,6 @@ public class Main {
                         if (kinput.get(i).charAt(z) != kdata.get(j).charAt(z) && seed.charAt(z) == '1') {
                             bruh = false;
                             break;
-                        } else if (kinput.get(i).charAt(z) == kdata.get(j).charAt(z) && seed.charAt(z) == '0') {
-                            bruh = false;
-                            break;
                         }
                     }
                     if (bruh) {
@@ -322,63 +319,82 @@ public class Main {
 
     //1.7
     public static void plast(String input, String output, int e, double ss, String seed) throws FileNotFoundException {
-        ArrayList<DBentry> unknown = readFasta(input);
         ArrayList<DBentry> database = readFasta(output);
+        ArrayList<ArrayList<Integer>> position = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<>();
+        ArrayList<ArrayList<String>> hsps = hsp(input, database,seed,position,positionInput);
+        ArrayList<ArrayList<String>> hspExtend = glouton(hsps, database, input, positionInput, position, e, seed);
+        ArrayList<ArrayList<String>> fuse = fusionHsp (input, hspExtend, positionInput, position);
+        ArrayList<HspStat> max = new ArrayList<>();
+        ArrayList<ArrayList<HspStat>> result = new ArrayList<>();
+        calcul(result, max, input, database, fuse, positionInput,position, ss);
+        ArrayList<HspStat> sort = new ArrayList<>();
 
-        for (DBentry j : unknown){
-            ArrayList<ArrayList<Integer>> position = new ArrayList<>();
-            ArrayList<ArrayList<Integer>> positionInput = new ArrayList<>();
-            ArrayList<ArrayList<String>> hsps = hsp(j.getSequence(), database,seed,position,positionInput);
-            ArrayList<ArrayList<String>> hspExtend = glouton(hsps, database, j.getSequence(), positionInput, position, e, seed);
-            ArrayList<ArrayList<String>> fuse = fusionHsp (j.getSequence(), hspExtend, positionInput, position);
-            ArrayList<HspStat> max = new ArrayList<>();
-            ArrayList<ArrayList<HspStat>> result = new ArrayList<>();
-            calcul(result, max, j.getSequence(), database, fuse, positionInput,position, ss);
-            ArrayList<HspStat> sort = new ArrayList<>();
+        for (HspStat hspStat : max) {
+            if (hspStat != null) {
+                sort.add(hspStat);
+            }
+        }
 
-            for (HspStat hspStat : max) {
-                if (hspStat != null) {
-                    sort.add(hspStat);
+        boolean sorted = false;
+        HspStat temp;
+        while(!sorted){
+            sorted = true;
+            for (int i = 0; i < sort.size() - 1; i++){
+                if (sort.get(i).getBitScore() < sort.get(i+1).getBitScore()){
+                    temp = sort.get(i);
+                    sort.set(i, sort.get(i+1));
+                    sort.set(i+1, temp);
+                    sorted = false;
                 }
             }
+        }
 
-            boolean sorted = false;
-            HspStat temp;
-            while(!sorted){
-                sorted = true;
-                for (int i = 0; i < sort.size() - 1; i++){
-                    if (sort.get(i).getBitScore() < sort.get(i+1).getBitScore()){
-                        temp = sort.get(i);
-                        sort.set(i, sort.get(i+1));
-                        sort.set(i+1, temp);
-                        sorted = false;
-                    }
-                }
-            }
-
-            if (!sort.isEmpty()){
+        if (!sort.isEmpty()){
+            System.out.println();
+            System.out.println("---------------------------------------------");
+            System.out.println("Input: "+input);
+            System.out.println();
+            for (HspStat i : sort){
+                System.out.println(i.getDatabase().getSequenceInfo());
+                System.out.println("# Best HSP score: " + i.getBruteScore() + ", bitscore: "+i.getBitScore()+ ", evalue: "+ i.geteValue());
+                System.out.println(i.getPositionInput()+ " "+i.getCurrentHsp() + " "+ (i.getPositionInput()+i.getCurrentHsp().length()-1));
+                System.out.println(i.getPositionDatabase() + " "+i.getDatabase().getSequence().substring(i.getPositionDatabase(), i.getPositionDatabase()+i.getCurrentHsp().length())+" "+ (i.getPositionDatabase()+i.getCurrentHsp().length()-1));
                 System.out.println();
-                System.out.println("---------------------------------------------");
-                System.out.println("Input: "+j.getSequence());
-                System.out.println();
-                for (HspStat i : sort){
-                    System.out.println(i.getDatabase().getSequenceInfo());
-                    System.out.println("# Best HSP score: " + i.getBruteScore() + ", bitscore: "+i.getBitScore()+ ", evalue: "+ i.geteValue());
-                    System.out.println(i.getPositionInput()+ " "+i.getCurrentHsp() + " "+ (i.getPositionInput()+i.getCurrentHsp().length()-1));
-                    System.out.println(i.getPositionDatabase() + " "+i.getDatabase().getSequence().substring(i.getPositionDatabase(), i.getPositionDatabase()+i.getCurrentHsp().length())+" "+ (i.getPositionDatabase()+i.getCurrentHsp().length()-1));
-                    System.out.println();
-                }
-                System.out.println("---------------------------------------------");
-                System.out.println("total: " + sort.size());
-            } else {
-                System.out.println("No results");
             }
+            System.out.println("---------------------------------------------");
+            System.out.println("total: " + sort.size());
+        } else {
+            System.out.println("No results");
         }
 
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
 
-        plast(args[0],args[1], Integer.parseInt(args[2]), Double.parseDouble(args[3]), args[4]);
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Entrer le input: ");
+
+        String input = in.readLine();
+
+        System.out.println("Entrer le path du database: ");
+
+        String database = in.readLine();
+
+        System.out.println("Entrer la seuil E: ");
+
+        int e = Integer.parseInt(in.readLine());
+
+        System.out.println("Entrer la seuil SS: ");
+
+        double ss = Double.parseDouble(in.readLine());
+
+        System.out.println("Entrer la graine: ");
+
+        String seed = in.readLine();
+
+        plast(input, database, e, ss, seed);
+        //plast("src/unknown.fasta", "src/tRNAs.fasta", 4, 0.001,"111010010100110111");
     }
 }
