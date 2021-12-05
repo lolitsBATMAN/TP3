@@ -1,19 +1,17 @@
 public class HspStat {
 
 
-    String currentHsp;
-    double lambda = 0.192;
-    double k = 0.176;
-    int bruteScore;
-    double bitScore;
-    double eValue;
-    String database;
-    int positionDatabase;
-    int m;
-    int n;
-    int positionInput;
+    private final String currentHsp;
+    private int bruteScore;
+    private final double bitScore;
+    private final double eValue;
+    private final DBentry database;
+    private final int positionDatabase;
+    private int m;
+    private int n;
+    private int positionInput;
 
-    public HspStat(String input,String currentHsp, int positionInput, int positionDatabase, String database, int m){
+    public HspStat(String input,String currentHsp, int positionInput, int positionDatabase, DBentry database, int m){
         this.m = m;
         this.n = input.length();
         this.currentHsp = currentHsp;
@@ -22,14 +20,14 @@ public class HspStat {
         this.positionDatabase = positionDatabase;
 
         this.bruteScore();
-        this.bitScore = Math.round((this.lambda * this.bruteScore - Math.log(k))/Math.log(2));
+        this.bitScore = Math.round((0.192 * this.bruteScore - Math.log(0.176))/Math.log(2));
         this.eValue = this.m * this.n / Math.pow(2, this.bitScore);
     }
 
     public void bruteScore(){
         this.bruteScore = 0;
         for (int i = 0; i < this.currentHsp.length(); i++){
-            if (this.currentHsp.charAt(i) == this.database.charAt(i+positionDatabase)){
+            if (this.currentHsp.charAt(i) == this.database.getSequence().charAt(i+positionDatabase)){
                 this.bruteScore += 5;
             } else {
                 this.bruteScore -= 4;
@@ -48,4 +46,12 @@ public class HspStat {
     public double getBitScore(){
         return this.bitScore;
     }
+
+    public String getCurrentHsp(){return this.currentHsp;}
+
+    public DBentry getDatabase(){return this.database;}
+
+    public int getPositionDatabase(){return this.positionDatabase;}
+
+    public int getPositionInput(){return this.positionInput;}
 }

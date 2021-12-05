@@ -1,0 +1,63 @@
+---------------------------------------------
+Input: AGCGGGGTAGAGGAATTGGTTTACTCATCAGGCTCATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCCT
+
+>M|cat|Vitis_vinifera_2
+# Best HSP score: 200.0, bitscore: 58.0, evalue: 8.060836720336084E-12
+34 CATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCCT 73
+34 CATGACCTGAAGACTGCAGGTTCGAATCCTGTCCCCGCCT 73
+
+>M|cat|Arabidopsis_thaliana
+# Best HSP score: 110.0, bitscore: 33.0, evalue: 2.7047679759562016E-4
+50 CAGGTTCGAATCCTGTCCCCGC 71
+50 CAGGTTCGAATCCTGTCCCCGC 71
+
+---------------------------------------------
+total: 2
+
+---------------------------------------------
+Input: ACATCCTTAGCTCAGTAGGATAGAGCAACAGCCTTCTAAGCTGGTGGTCACAGGTTCAAATCCTGTAGGATGTA
+
+>R|tcg|Marchantia_polymorpha
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+44 TGGTCACAGGTTCAAATCCTGTAGGATG 71
+44 TGGTCACAGGTTCAAATCCTGTAGGATG 71
+
+>R|tct|Marchantia_polymorpha
+# Best HSP score: 115.0, bitscore: 34.0, evalue: 1.3523839879781008E-4
+45 GGTCACAGGTTCAAATCCTGTAG 67
+45 GGTCACAGGTTCAAATCCTGTAG 67
+
+---------------------------------------------
+total: 2
+
+---------------------------------------------
+Input: CGCGGAGTAGAGCAGTTTGGTAGCTCGCAAGGCTCATAACCTTGAGGTCACGGGTTCAAATCCTGTCATCCCTA
+
+>P|tgg|Oryza_sativa_Japonica_Group
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+
+>P|tgg|Sorghum_bicolor
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+46 GTCACGGGTTCAAATCCTGTCATCCCTA 73
+
+---------------------------------------------
+total: 2
+
+---------------------------------------------
+Input: GCATTCTTAGCTCAGCTGGATAGAGCAACAACCTTCTAAGTTGAAGGTCACAGGTTCAAATCCTGTAGGATGCT
+
+>R|tcg|Marchantia_polymorpha
+# Best HSP score: 140.0, bitscore: 41.0, evalue: 1.0565499906078912E-6
+45 GGTCACAGGTTCAAATCCTGTAGGATGC 72
+45 GGTCACAGGTTCAAATCCTGTAGGATGC 72
+
+>R|tct|Mesostigma_viride
+# Best HSP score: 120.0, bitscore: 36.0, evalue: 3.380959969945252E-5
+44 AGGTCACAGGTTCAAATCCTGTAG 67
+44 AGGTCACAGGTTCAAATCCTGTAG 67
+
+---------------------------------------------
+total: 2

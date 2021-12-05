@@ -1,18 +1,13 @@
 import javax.lang.model.type.NullType;
 import java.io.*;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Main {
     // 1.1
-    //je m'en criss un peu ici so j'ai tout crisser dans un tableau, dans le fond
-    //les index 0,2,4,6... sont les >dsad|dasd|sdads| et les index 1,3,5,... sont
-    //les nucleotides, good luck
-    //trop de trouble de les filtrer
-
-    //2e argument la dabatase quon creer dans la main
     public static ArrayList<DBentry> readFasta(String file) throws FileNotFoundException {
-        ArrayList<DBentry> database =  new ArrayList<DBentry>();
+        ArrayList<DBentry> database =  new ArrayList<>();
         try (Scanner sc = new Scanner(new File(file))) {
 
             while (sc.hasNextLine()) {
@@ -41,17 +36,16 @@ public class Main {
         return mer;
     }
 
-    //retourne une list avec les hsps
     public static ArrayList<ArrayList<String>> hsp(String input, ArrayList<DBentry> data, String seed, ArrayList<ArrayList<Integer>> position, ArrayList<ArrayList<Integer>> positioninput){
         int k = seed.length();
-        ArrayList<ArrayList<String>> hsps = new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> hsps = new ArrayList<>();
         ArrayList<String> kinput = kmer(input, k);
 
         for (int y = 0; y < data.size(); y++) {
             ArrayList<String> kdata = kmer(data.get(y).getSequence(), k);
-            hsps.add(new ArrayList<String>());
-            position.add(new ArrayList<Integer>());
-            positioninput.add(new ArrayList<Integer>());
+            hsps.add(new ArrayList<>());
+            position.add(new ArrayList<>());
+            positioninput.add(new ArrayList<>());
             for (int i = 0; i < kinput.size(); i++) {
                 for (int j = 0; j < kdata.size(); j++) {
                     boolean bruh = true;
@@ -78,15 +72,15 @@ public class Main {
     public static void removeDuplicates(ArrayList<ArrayList<String>> list, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase) {
 
         // Create a new ArrayList
-        ArrayList<ArrayList<String>> newList = new ArrayList<ArrayList<String>>();
-        ArrayList<ArrayList<Integer>> positionIn = new ArrayList<ArrayList<Integer>>();
-        ArrayList<ArrayList<Integer>> positionDb = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<String>> newList = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> positionIn = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> positionDb = new ArrayList<>();
 
         // Traverse through the first list
         for (int i = 0;  i < list.size(); i++) {
-            ArrayList<String> newist = new ArrayList<String>();
-            ArrayList<Integer> posIn = new ArrayList<Integer>();
-            ArrayList<Integer> posDb = new ArrayList<Integer>();
+            ArrayList<String> newist = new ArrayList<>();
+            ArrayList<Integer> posIn = new ArrayList<>();
+            ArrayList<Integer> posDb = new ArrayList<>();
             if (!list.get(i).isEmpty()) {
                 for (int j = 0; j < list.get(i).size(); j++) {
 
@@ -111,7 +105,7 @@ public class Main {
         positionDatabase.addAll(positionDb);
     }
 
-    //1.4
+    //1.4 extend des hsps
     public static ArrayList<ArrayList<String>> glouton (ArrayList<ArrayList<String>> hsp, ArrayList<DBentry> database, String input, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase, Integer seuil, String seed){
 
         for (int i = 0; i < hsp.size(); i++){
@@ -213,38 +207,22 @@ public class Main {
     //1.5
     public static ArrayList<ArrayList<String>> fusionHsp (String input, ArrayList<ArrayList<String>> extendedHsps, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase) {
 
-
-//        System.out.println("INITAL SIZE");
-//        System.out.println(positionInput.get(0).size());
-
         ArrayList<ArrayList<String>> result = new ArrayList<>();
         ArrayList<ArrayList<Integer>> in = new ArrayList<>();
         ArrayList<ArrayList<Integer>> db = new ArrayList<>();
 
         for (int i = 0; i < positionDatabase.size(); i++) {
+
             ArrayList<Integer> offset = new ArrayList<>();
             ArrayList<ArrayList<String>> hsps = new ArrayList<>();
             ArrayList<ArrayList<Integer>> positionIn = new ArrayList<>();
             ArrayList<ArrayList<Integer>> positionDb = new ArrayList<>();
 
-//            System.out.println(positionInput);
-//            System.out.println(positionDatabase);
-
-            //System.out.println(!extendedHsps.get(i).isEmpty());
             if (!extendedHsps.get(i).isEmpty()){
-//                System.out.println(positionInput);
-//                System.out.println(positionDatabase);
                 for (int j = 0; j < positionDatabase.get(i).size(); j++) {
-//                    System.out.println(positionInput);
-//                    System.out.println(positionDatabase);
-//                    System.out.println();
-//                    System.out.println(extendedHsps.get(i));
-//                    System.out.println(positionDatabase.get(i));
-//                    System.out.println(positionInput.get(i));
-
 
                     int nb = positionInput.get(i).get(j) - positionDatabase.get(i).get(j);
-                    //System.out.println(nb);
+
                     if (!offset.contains(nb)) {
                         offset.add(nb);
                         hsps.add(new ArrayList<>());
@@ -260,12 +238,6 @@ public class Main {
                     }
                 }
 
-//                if (i == 0){
-//                    System.out.println("OFFSET");
-//                    System.out.println(offset);
-//                    System.out.println(offset.size());
-//                }
-
                 for (int k = 0; k < hsps.size(); k++){
                     for (int l = 0; l < hsps.get(k).size(); l++){
                         for (int m = 0; m < hsps.get(k).size(); m++){
@@ -276,8 +248,6 @@ public class Main {
                                 int positionNextFinal = positionNextInit + hsps.get(k).get(m).length() - 1;
 
                                 if (positionNextInit  <= positionFirstFinal && positionFirstFinal <= positionNextFinal){
-                                    //System.out.println(input.length());
-                                    //System.out.println(input);
                                     hsps.get(k).set(l, input.substring(positionFirstInit, positionNextFinal));
                                     hsps.get(k).remove(m);
                                     positionIn.get(k).remove(m);
@@ -304,22 +274,18 @@ public class Main {
         positionInput.clear();
         positionInput.addAll(in);
 
-//        System.out.println("FINAL SIZE");
-//        System.out.println(positionInput.get(0).size());
-
         return result;
     }
     //1.6
     public static int databaseTotalSize(ArrayList<DBentry> database){
         int len = 0;
-        for (int i= 0; i<database.size(); i++){
-            len += database.get(i).sequence.length();
+        for (DBentry dBentry : database) {
+            len += dBentry.sequence.length();
         }
         return len;
     }
 
     public static void calcul(ArrayList<ArrayList<HspStat>> resultat, ArrayList<HspStat> maximum,String input, ArrayList<DBentry> database,ArrayList<ArrayList<String>> hsps, ArrayList<ArrayList<Integer>> positionInput, ArrayList<ArrayList<Integer>> positionDatabase, double seuil2){
-
         ArrayList<ArrayList<HspStat>> result = new ArrayList<>();
 
         int m = databaseTotalSize(database);
@@ -327,28 +293,23 @@ public class Main {
             result.add(new ArrayList<>());
             if (!hsps.get(i).isEmpty()){
                 for (int j = 0 ;j < positionDatabase.get(i).size(); j++){
-                    //System.out.println(positionDatabase.get(i).size());
-                    result.get(i).add(new HspStat(input,hsps.get(i).get(j), positionInput.get(i).get(j),positionDatabase.get(i).get(j), database.get(i).getSequence(), m));
+                    result.get(i).add(new HspStat(input,hsps.get(i).get(j), positionInput.get(i).get(j),positionDatabase.get(i).get(j), database.get(i), m));
                 }
             }
         }
 
         ArrayList<HspStat> maxi = new ArrayList<>();
 
-        for (int i = 0; i < result.size(); i++){
+        for (ArrayList<HspStat> hspStats : result) {
             double max = -1;
             HspStat maxim = null;
-            for (int j = 0; j < result.get(i).size(); j++){
-                System.out.println(result.get(i).get(j).geteValue());
-                System.out.println(result.get(i).get(j).getBruteScore());
-                //System.out.println(result.get(i).get(j).getBitScore());
-                //System.out.println(result.get(i).get(j));
-                if (result.get(i).get(j).geteValue() >= seuil2){
-                    result.get(i).remove(j);
+            for (int j = 0; j < hspStats.size(); j++) {
+                if (hspStats.get(j).geteValue() >= seuil2) {
+                    hspStats.remove(j);
                 } else {
-                    if (result.get(i).get(j).getBitScore() >= max){
-                        max = result.get(i).get(j).getBitScore();
-                        maxim = result.get(i).get(j);
+                    if (hspStats.get(j).getBitScore() >= max) {
+                        max = hspStats.get(j).getBitScore();
+                        maxim = hspStats.get(j);
                     }
                 }
             }
@@ -360,37 +321,64 @@ public class Main {
 
 
     //1.7
-    public static void plast(String input, String output, String seed, int seuil, double seuil2) throws FileNotFoundException {
+    public static void plast(String input, String output, int e, double ss, String seed) throws FileNotFoundException {
         ArrayList<DBentry> unknown = readFasta(input);
         ArrayList<DBentry> database = readFasta(output);
-        ArrayList<ArrayList<Integer>> position = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<>();
-        ArrayList<ArrayList<String>> hsps = hsp(unknown.get(0).getSequence(), database,seed,position,positionInput);
-        ArrayList<ArrayList<String>> hspExtend = glouton(hsps, database, unknown.get(0).getSequence(), positionInput, position, seuil, seed);
-        ArrayList<ArrayList<String>> fuse = fusionHsp (unknown.get(0).getSequence(), hspExtend, positionInput, position);
-        System.out.println(position);
-        ArrayList<HspStat> max = new ArrayList<>();
-        ArrayList<ArrayList<HspStat>> result = new ArrayList<>();
-        calcul(result, max, unknown.get(0).getSequence(), database, fuse, positionInput,position, seuil2);
 
-        System.out.println(result);
-        System.out.println(max);
+        for (DBentry j : unknown){
+            ArrayList<ArrayList<Integer>> position = new ArrayList<>();
+            ArrayList<ArrayList<Integer>> positionInput = new ArrayList<>();
+            ArrayList<ArrayList<String>> hsps = hsp(j.getSequence(), database,seed,position,positionInput);
+            ArrayList<ArrayList<String>> hspExtend = glouton(hsps, database, j.getSequence(), positionInput, position, e, seed);
+            ArrayList<ArrayList<String>> fuse = fusionHsp (j.getSequence(), hspExtend, positionInput, position);
+            ArrayList<HspStat> max = new ArrayList<>();
+            ArrayList<ArrayList<HspStat>> result = new ArrayList<>();
+            calcul(result, max, j.getSequence(), database, fuse, positionInput,position, ss);
+            ArrayList<HspStat> sort = new ArrayList<>();
+
+            for (HspStat hspStat : max) {
+                if (hspStat != null) {
+                    sort.add(hspStat);
+                }
+            }
+
+            boolean sorted = false;
+            HspStat temp;
+            while(!sorted){
+                sorted = true;
+                for (int i = 0; i < sort.size() - 1; i++){
+                    if (sort.get(i).getBitScore() < sort.get(i+1).getBitScore()){
+                        temp = sort.get(i);
+                        sort.set(i, sort.get(i+1));
+                        sort.set(i+1, temp);
+                        sorted = false;
+                    }
+                }
+            }
+
+            if (!sort.isEmpty()){
+                System.out.println();
+                System.out.println("---------------------------------------------");
+                System.out.println("Input: "+j.getSequence());
+                System.out.println();
+                for (HspStat i : sort){
+                    System.out.println(i.getDatabase().getSequenceInfo());
+                    System.out.println("# Best HSP score: " + i.getBruteScore() + ", bitscore: "+i.getBitScore()+ ", evalue: "+ i.geteValue());
+                    System.out.println(i.getPositionInput()+ " "+i.getCurrentHsp() + " "+ (i.getPositionInput()+i.getCurrentHsp().length()-1));
+                    System.out.println(i.getPositionDatabase() + " "+i.getDatabase().getSequence().substring(i.getPositionDatabase(), i.getPositionDatabase()+i.getCurrentHsp().length())+" "+ (i.getPositionDatabase()+i.getCurrentHsp().length()-1));
+                    System.out.println();
+                }
+                System.out.println("---------------------------------------------");
+                System.out.println("total: " + sort.size());
+            } else {
+                System.out.println("No results");
+            }
+        }
+
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-//        ArrayList<DBentry> db = new ArrayList<DBentry>();
-//        DBentry x = new DBentry("BRUH","ABCXXXXABC");
-//        db.add(x);
-//
-//        String input = "PEFABCEFP";
-//        ArrayList<ArrayList<Integer>> position = new ArrayList<ArrayList<Integer>>();
-//        ArrayList<ArrayList<Integer>> positionInput = new ArrayList<ArrayList<Integer>>();
-//        ArrayList<ArrayList<String>> hsps = hsp(input, db,"111",position,positionInput);
-//        System.out.println(glouton(hsps, db,input,positionInput, position, 4,"111"));
-//        System.out.println(hsps);
-//        System.out.println(positionInput);
-//        System.out.println(position);
 
-        plast("src/unknown.fasta","src/tRNAs.fasta", "11111111111", 5, 10);
+        plast(args[0],args[1], Integer.parseInt(args[2]), Double.parseDouble(args[3]), args[4]);
     }
 }
